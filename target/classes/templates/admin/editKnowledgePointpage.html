@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newHomeworkPaper'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">author</label>
+        <div class="layui-input-block">
+            <input type="text" name="username" required  lay-verify="required" placeholder="please input author"
+                   autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.authorName}" style="width: 50%" readonly>
+        </div>
+        <div class="layui-input-block" hidden="true">
+            <input type="text" name="userid" required  lay-verify="required" placeholder="please input author"
+                   autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.authorId}">
+        </div>
+        <div class="layui-input-block" hidden="true">
+            <input type="text" name="id" id = "id" required  lay-verify="required" placeholder="please input author"
+                   autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.cid}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">class</label>
+        <div class="layui-input-block">
+            <input type="text" name="classname" required  lay-verify="required" placeholder="please input class"
+                   autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.classname}" style="width: 50%" readonly>
+        </div>
+        <div class="layui-input-block" hidden="true">
+            <input type="text" name="classid" required  lay-verify="required" placeholder="please input class"
+                   autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.classid}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">title</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" required  lay-verify="required" placeholder="please input title"
+                   style="width: 50%" autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.title}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">tags</label>
+        <div class="layui-input-block">
+            <input type="text" name="tags" required  lay-verify="required" placeholder="please input tags"
+                   style="width: 50%" autocomplete="off" class="layui-input" th:value="${newKnowledgePointList.tags}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">created time</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" id="created" name="created" style="width: 50%" th:value="${newKnowledgePointList.createdtime}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">status</label>
+        <div class="layui-input-block">
+            <input type="radio" name="status" value="private" id = "private"title="private" >
+            <input type="radio" name="status" value="publish" id = "publish" title="publish">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">content</label>
+        <div class="layui-input-block">
+        <textarea name="content" placeholder="please input content" id="content"
+                  style="width: 50%" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">submit immediately</button>
+            <button type="reset" class="layui-btn layui-btn-primary">reset</button>
+        </div>
+    </div>
+</form>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    $(function () {
+        var id= $("#id").val();
+        $.ajax({
+            url:"/admin/newknowledgepoint/queryNewknowledgePoint",
+            type:"post",
+            async:false,
+            data:{id:id},
+            success:function(res){
+                if(res.data.status=='publish'){
+                    $("#publish").attr("checked",true);
+                }
+                if(res.data.status=='private'){
+                    $("#private").attr("checked",true);
+                }
+                    $("#content").text(res.data.content);
+            },
+            error:function(e){
+            }
+        });
+    });
+    layui.use('form', function(){
+        var form = layui.form;
+        form.on('submit(formDemo)', function(data){
+            var userid = data.field.userid;
+            var id = data.field.id;
+            var username = data.field.username;
+            var classid = data.field.classid;
+            var classname = data.field.classname;
+            var content = data.field.content;
+            var status = data.field.status;
+            var created = data.field.created;
+            var title = data.field.title;
+            var tags = data.field.tags;
+            var data={
+                id:id
+                ,userid:userid
+                ,username:username
+                ,classid:classid
+                ,classname:classname
+                ,content:content
+                ,status:status
+                ,created:created
+                ,title:title
+                ,tags:tags
+            }
+            $.ajax({
+                url:"/admin/newknowledgepoint/updateNewknowledge",
+                type:"post",
+                async:false,
+                data:data,
+                success:function(res){
+                    if (res.code == 'success') {
+                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index);
+                        top.layer.msg('update successfully！', {icon: 1,time:2000});
+                    }
+                },
+                error:function(e){
+                    return false;
+                }
+            });
+            return true;
+        });
+    });
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#created'
+            ,format:'yyyy-MM-dd'
+        });
+    });
+</script>
+</body>
+</html>

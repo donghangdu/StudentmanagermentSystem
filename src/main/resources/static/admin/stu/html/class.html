@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>classes</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/class.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <script src="../js/config.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div class="navBox">
+            <div class="nav section">
+                <div class="titleBox">
+                    <p class="title" @click="home()">Home page</p>
+                    <span @click="back()">Back</span>
+                </div>
+                <div>
+                    <span>{{uname}}&emsp;</span>
+                    <span @click="logout()">sign out</span>
+                </div>
+            </div>
+        </div>
+        <section class="section">
+            <br><br>
+            <br><br>
+            <el-table
+                v-if="classid!=''"
+                stripe
+                :data="my">
+                <el-table-column label="My Group" width="180" align="center">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.classname }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="Group‘s Photo" width="180" align="center">
+                    <template slot-scope="scope">
+                        <img :src="host+scope.row.headimage" alt="" srcset="" style="width:80%;">
+                    </template>
+                </el-table-column>
+                <el-table-column label="Description of the group" align="center">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.comment }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="Show Teachers" width="180" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="showTeachers(scope.$index, scope.row)">Show Teachers</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br><br>
+            <h1>All Groups</h1>
+            <el-table
+                class="list1"
+                stripe
+                :data="list">
+                <el-table-column label="class" width="180" align="center">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.classname }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="Group‘s Photo" width="180" align="center">
+                    <template slot-scope="scope">
+                        <img :src="host+scope.row.headimage" alt="" srcset="" style="width:80%;">
+                    </template>
+                </el-table-column>
+                <el-table-column label="Description of the group" align="center">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.comment }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="operation" width="180" align="center" v-if="classid==''">
+                    <template slot-scope="scope">
+                        <el-button type="primary"
+                        size="mini"
+                        @click="join(scope.$index, scope.row)">join</el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column label="Group  Forum" width="180" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="success"
+                                size="mini"
+                                @click="joinForum(scope.$index, scope.row)">Join Forum</el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column label="Show Teachers" width="180" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="showTeachers(scope.$index, scope.row)">Show Teachers</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination
+                class="pagination"
+                background
+                :page-size="size"
+                @current-change="handleCurrentChange"
+                layout="prev, pager, next"
+                :total="total">
+            </el-pagination>
+        </section>
+        
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+        var app = new Vue({
+            el:"#root",
+            data:{
+                host:host,
+                userid:'',
+                uname:"",
+                classid:'',
+                list:[],
+                total:0,
+                page:1,
+                size:15,
+                my:[
+
+                ]
+            },
+            created:function(){
+                var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+                this.userid=paramObj.userid ||'';
+                this.classid=paramObj.classid||'';
+                this.uname=sessionStorage.getItem('uname')||'';
+                this.init();
+            },
+            methods:{
+                home:function(){
+                    window.location.href='./index.html';
+                },
+                back:function(){
+                    window.history.go(-1);
+                },
+                showTeachers(index,row){
+                    var teachersname = "";
+                    $.ajax({
+                            url:host+'/api/class/select/selectTeacher',
+                            dataType:'json',
+                            type:'POST',
+                            timeout:2000,
+                            async:false,
+                            //参数
+                            data:{
+                                classid:row.id,
+                                usertype:1
+                            },
+
+                            success:function(result,status){
+                                result.data.forEach(function(e,i){
+                                    console.log(e.realname);
+                                    teachersname+=e.realname+",";
+                                });
+                            },
+
+                            error:function(XMLHttpRequest,textStatus,errorThrown){
+                                if(textStatus==='timeout'){
+                                    that.$message('Request timed out');
+                                    setTimeout(function(){
+                                        that.$message('Re request');
+                                    },2000);
+                                }
+                            }
+                    })
+                    if(teachersname =="" || teachersname==null){
+                        teachersname="NONE!,";
+                    }
+                    this.$alert("Teacher List："+teachersname.substring(0, teachersname.lastIndexOf(',')), "Teacher List", {
+                        confirmButtonText: 'OK',
+                    });
+                },
+                logout:function(){
+                    var that=this;
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // get head，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    $.ajax({
+                        url:'/admin/logout',
+                        dataType:'json',
+                        type:'GET',
+                        timeout:2000,
+
+                        data:{
+                           
+                        },
+
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            window.location.href=data.data;
+                        },
+
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                init(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // get head，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/class/select/list',
+                        dataType:'json',
+                        type:'POST',
+                        timeout:2000,
+                        async:true,
+
+                        data:{
+                            integer:that.page,
+                            limit:that.size
+                        },
+
+                        success:function(data,status){
+                            var num=0;
+                            load.close();
+                            that.total=data.data.total;
+                            that.list=data.data.list;
+                            if(that.classid!=''){
+                                data.data.list.forEach(function(e,i){
+                                    if(e.id==that.classid){
+                                        that.my.push(e);
+                                        num++;
+                                    }
+                                });
+                            }
+                        },
+
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                        }
+                    })
+                },
+                handleCurrentChange(val) {
+                    this.page=val;
+                    this.init();
+                    console.log(`Current page: ${val}`);
+                },
+                join:function(index,row){
+                    console.log(index,row);
+                    var that =this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // head，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;                                    }  
+
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/user/addclass',
+                        dataType:'json',
+                        type:'POST',
+                        timeout:2000,
+
+                        data:{
+                           userid:that.userid,
+                           classid:row.id
+                        },
+
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            this.classid=row.id;
+                            that.$message({type: 'success',message:'Join successfully'});
+                            that.init();
+                            window.history.go(-1);
+                        },
+
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                joinForum:function (index,row) {
+                    var that =this;
+                    window.location.href="../../../../../forum/message.html?classid="+row.id+'&userid='+that.userid+'&username='+that.uname;
+                }
+            }
+        })
+    </script>
+</body>
+</html>

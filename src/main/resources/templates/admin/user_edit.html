@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="grade=${grade},active=${usertype}">
+<header th:replace="admin/fragments/header::headerFragment(${grade},${active})"></header>
+<body class="fixed-left">
+
+
+<link th:href="@{/admin/plugins/tagsinput/jquery.tagsinput.css}" rel="stylesheet"/>
+<link th:href="@{/admin/plugins/select2.dist.css/select2-bootstrap.css}" rel="stylesheet"/>
+<link th:href="@{/admin/plugins/toggles/toggles.css}" rel="stylesheet"/>
+
+<!--<link href="//cdn.bootcss.com/multi-select/0.9.12/css/multi-select.css" rel="stylesheet"/>-->
+<!--<link href="//cdn.bootcss.com/select2/3.4.8/select2.min.css" rel="stylesheet"/>-->
+<link th:href="@{/admin/plugins/md/css/style.css}" rel="stylesheet"/>
+<!-- editor.md -->
+<link th:href="@{/admin/editormd/css/editormd.css}" rel="stylesheet"/>
+<style>
+    .table>tbody>tr>td {
+        padding: 8px;
+        line-height: 1.42857143;
+        margin: 0 auto;
+        vertical-align:middle;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+    .table>thead:first-child>tr:first-child>th{
+        text-align: center;
+    }
+
+</style>
+
+
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-grade" th:text=" ${usertype=='teacher'?'Teacher management':'Student management'}">user management </h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-color panel-primary">
+                            <div class="panel-heading">
+                                <th:block th:if="${null != TestUser}">
+                                    <h3 class="panel-title" th:text=" ${usertype=='teacher'?'Editor teacher':'Editing students'}"></h3>
+                                </th:block>
+                                <th:block th:unless="${null != TestUser}">
+                                    <h3 class="panel-title" th:text=" ${usertype=='teacher'?'New teachers':'New students'}"></h3>
+                                </th:block>
+
+                            </div>
+                            <div class="panel-body">
+                                <form class="form-horizontal" th:action="${null != TestUser?'/admin/user/edit/save':'/admin/user/add/save'}"
+                                      onsubmit="return formSubmit(this)" method="post" role="form" id="global-form" >
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Account</label>
+                                        <div class="col-md-9">
+                                            <input th:value="${TestUser!=null and TestUser.userid !=null}?${TestUser.userid}: ''" name="userid" type="hidden">
+                                            <input type="text" class="form-control" name="username" placeholder="Account"
+                                                   th:value="${TestUser!=null and TestUser.username !=null}?${TestUser.username}: ''"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Real name</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="realname" placeholder="Real name"
+                                                   th:value="${TestUser!=null and TestUser.realname !=null}?${TestUser.realname}: ''" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Password</label>
+                                        <div class="col-md-9">
+                                            <input type="password" class="form-control" name="userpwd" placeholder="Password"
+                                                   th:value="${TestUser!=null and TestUser.userpwd !=null}?${TestUser.userpwd}: ''" />
+                                        </div>
+                                    </div>
+
+                                    <input th:value="${usertype=='student'?'0':'1'}" name="usertype" type="hidden">
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">E-mail</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="email" placeholder="E-mail"
+                                                   th:value="${TestUser!=null and TestUser.email !=null}?${TestUser.email}: ''"   />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Tel</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="telephone"  placeholder="Tel"
+                                                   th:value="${TestUser!=null and TestUser.telephone !=null}?${TestUser.telephone}: ''"  />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Address</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="address" placeholder="Address"
+                                                   th:value="${TestUser!=null and TestUser.address !=null}?${TestUser.address}: ''" />
+                                        </div>
+                                    </div>
+                                    <div id="classid" th:if="${usertype=='teacher'}">
+                                        <div class="form-group">
+                                            <label class="col-md-3 control-label">Groupname</label>
+                                            <div class="col-md-9">
+                                                <select name="classid" id = "usertype" class="form-control"
+                                                        data-placeholder="Pleas select group..">
+                                                    <th:block th:each="class : ${TestClass}">
+                                                        <option  th:value="${class.id}" th:text="${class.classname}"></option>
+                                                    </th:block>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">User notes</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="remark" placeholder="User notes"
+                                                   th:value="${TestUser!=null and TestUser.remark !=null}?${TestUser.remark}: ''"/>
+                                        </div>
+                                    </div>
+                                    <input th:value="post" id="multiple-type" type="hidden">
+
+                                    <div class="form-group" id="comment-div" >
+                                        <label class="col-md-3 control-label">state</label>
+                                        <div class="col-md-9" style="margin-top: 6px">
+                                            <input type="hidden" th:value="${TestUser!=null and TestUser.userstate!=null?TestUser.userstate:'1'}" name="userstate" id="status">
+                                            <div th:class="${TestUser!=null and TestUser.userstate!=null }?'toggle toggle-success allow-'+${TestUser.userstate==1?'true':'false'}:'toggle toggle-success allow-true'"
+                                                 onclick="allow_status('status');"></div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix pull-right">
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light" >
+                                            save
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript">
+    /*<![CDATA[*/
+    function formSubmit(e) {
+        var telephone=$("input[name='telephone']").val();
+        if(telephone==null || telephone==""){
+            tale.alertError("telephone cannot be empty");
+            return false;
+        }
+        var userpwd=$("input[name='userpwd']").val();
+        if(userpwd==null || userpwd==""){
+            tale.alertError("userpwd cannot be empty");
+            return false;
+        }
+        var username=$("input[name='username']").val();
+        if(username==null || username==""){
+            tale.alertError("username cannot be empty");
+            return false;
+        }
+        var realname=$("input[name='realname']").val();
+        if(realname==null || realname==""){
+            tale.alertError("realname cannot be empty");
+            return false;
+        }
+        var myReg=/^\w+(?:\.\w+){0,1}@[a-zA-Z0-9]{2,14}(?:\.[a-z]{2,4}){1,3}$/;
+        var email=$("input[name='email']").val();
+        debugger
+        if(!myReg.test(email) || email==null || email==""){
+            tale.alertError("the email format is incorrect");
+            return false;
+        }
+        return true;
+    }
+    function allow_status(id) {
+        id='#'+id;
+        var idValue = $(id).val();
+        // alert(idValue);
+        if(idValue=='1'){
+            $(id).val(0)
+        }else{
+            $(id).val(1)
+        }
+    }
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure you want to delete this user?',
+            then: function () {
+                tale.post({
+                    url : '/admin/user/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code === 'success'){
+                            tale.alertOkAndReload('User deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'User deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+<script th:src="@{/admin/plugins/tagsinput/jquery.tagsinput.min.js}"></script>
+<script th:src="@{/admin/plugins/jquery-multi-select/jquery.quicksearch.js}"></script>
+
+<!-- editor.md -->
+<script th:src="@{/admin/editormd/src/editormd.js}"></script>
+
+
+<script th:src="@{/admin/plugins/md/js/jquery.scrollto.js}"></script>
+<script th:src="@{/admin/plugins/md/js/pagedown.js}"></script>
+<script th:src="@{/admin/plugins/md/js/pagedown-extra.js}"></script>
+<script th:src="@{/admin/plugins/md/js/diff.js}"></script>
+<script th:src="@{/admin/plugins/md/js/md.js}"></script>
+
+<script th:src="@{//cdn.bootcss.com/multi-select/0.9.12/js/jquery.multi-select.min.js}"></script>
+<script th:src="@{//cdn.bootcss.com/select2/3.4.8/select2.min.js}"></script>
+<script th:src="@{//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js}"></script>
+<script th:src="@{/admin/js/article.js}"></script>
+</body>
+</html>

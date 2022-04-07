@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Paper management',active='testPaper'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+
+
+<link th:href="@{/admin/test/main.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/admin/test/iconfont.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/admin/test/test.css}" rel="stylesheet" type="text/css" />
+<style>
+    .hasBeenAnswer {
+        background: #5d9cec;
+        color:#fff;
+    }
+    .spinner {
+        width: 100px;
+    }
+    .spinner input {
+        text-align: right;
+    }
+    .input-group-btn-vertical {
+        position: relative;
+        white-space: nowrap;
+        width: 1%;
+        vertical-align: middle;
+        display: table-cell;
+    }
+    .input-group-btn-vertical > .btn {
+        display: block;
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        padding: 8px;
+        margin-left: -1px;
+        position: relative;
+        border-radius: 0;
+    }
+    .input-group-btn-vertical > .btn:first-child {
+        border-top-right-radius: 4px;
+    }
+    .input-group-btn-vertical > .btn:last-child {
+        margin-top: -2px;
+        border-bottom-right-radius: 4px;
+    }
+    .input-group-btn-vertical i{
+        position: absolute;
+        top: 0;
+        left: 4px;
+    }
+</style>
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+
+
+
+
+
+
+
+                        <!--nr start-->
+                        <div class="test_main">
+                            <div class="nr_left">
+                                <div class="test">
+                                    <form >
+                                        <div class="test_title" th:with="sumScore=0">
+
+
+                                            <font><input onclick="javascript :history.back(-1);"  type="button" name="test_jiaojuan" value="Back"></font>
+
+                                        </div>
+
+                                        <div class="test_content">
+                                            <div class="test_content_title">
+                                                <h2>MCQ</h2>
+                                                <p>
+                                                    <span>total&nbsp;&nbsp;<i class="content_lit"  th:text="${d.size()}"></i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i class="content_fs"  th:text="${dSum}"></i>&nbsp;&nbsp;<span>score</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="test_content_nr">
+                                            <ul>
+
+                                                <th:block th:each="post : ${uQ}">
+                                                    <th:block th:if="${post.type==1}">
+                                                    <li class="list">
+                                                        <input class="recordId" type="hidden" th:value="${post.recordId}">
+
+                                                        <a th:name="'qu_'+${post.id}" style="position: relative;top: -85px;"></a>
+                                                    <div class="test_content_nr_tt">
+                                                        <i th:text="${post.serial_num}">1</i><span th:text="'('+${post.score}+'Score)'"></span><font th:text="${post.name}"></font><b class="icon iconfont"></b>
+                                                    </div>
+
+                                                    <div class="test_content_nr_main">
+                                                        <ul>
+
+                                                            <li class="option">
+
+                                                                <input type="radio" disabled class="radioOrCheck"  th:name="'answer1'+${post.id}"
+                                                                       th:checked="${post.userAnswer == 'a'}"
+                                                                />
+
+                                                                <label>
+                                                                    A.
+                                                                    <p class="ue" style="display: inline;" th:text="${post.a}"></p>
+                                                                </label>
+                                                            </li>
+
+                                                            <li class="option">
+
+                                                                <input type="radio" disabled class="radioOrCheck" th:name="'answer1'+${post.id}"
+                                                                         th:checked="${post.userAnswer == 'b'}"
+                                                                />
+
+
+                                                                <label>
+                                                                    B.
+                                                                    <p class="ue" style="display: inline;" th:text="${post.b}"></p>
+                                                                </label>
+                                                            </li>
+
+                                                            <li class="option">
+
+                                                                <input type="radio" disabled class="radioOrCheck" th:name="'answer1'+${post.id}"
+                                                                        th:checked="${post.userAnswer == 'c'}"
+                                                                />
+
+
+                                                                <label >
+                                                                    C.
+                                                                    <p class="ue" style="display: inline;" th:text="${post.c}"></p>
+                                                                </label>
+                                                            </li>
+
+                                                            <li class="option">
+
+                                                                <input type="radio" disabled class="radioOrCheck" th:name="'answer1'+${post.id}"
+                                                                       th:checked="${post.userAnswer == 'd'}"
+                                                                />
+
+
+                                                                <label>
+                                                                    D.
+                                                                    <p class="ue" style="display: inline;" th:text="${post.d}"></p>
+                                                                </label>
+                                                            </li>
+
+                                                        </ul>
+                                                        <div  style="color: red;">
+                                                            Right answer is(<span th:text="${post.answer}"></span>)&nbsp;&nbsp;&nbsp;&nbsp;Score of this question is &nbsp;(<span th:value="${post.dueScore}" th:text="${post.dueScore}"></span>)
+                                                            <input class="answer" type="hidden" th:value="${post.answer}">
+                                                            <input class="dueScore" type="hidden" th:value="${post.dueScore}">
+
+                                                        </div>
+                                                    </div>
+
+                                                </li>
+                                                    </th:block>
+                                                </th:block>
+
+
+                                            </ul>
+                                        </div>
+
+                                        <div class="test_content">
+                                            <div class="test_content_title">
+                                                <h2>SAQ</h2>
+                                                <p>
+                                                    <span>total&nbsp;&nbsp;<i class="content_lit"  th:text="${j.size()}"></i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i class="content_fs"  th:text="${jSum}"></i>&nbsp;&nbsp;<span>score</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="test_content_nr">
+                                            <ul>
+                                                <th:block th:each="post : ${uQ}">
+                                                    <th:block th:if="${post.type==2}">
+                                                        <li class="list">
+                                                            <input class="recordId" type="hidden" th:value="${post.recordId}">
+                                                            <a th:name="'qu_'+${post.id}" style="position: relative;top: -85px;"></a>
+                                                            <div class="test_content_nr_tt">
+                                                                <i th:text="${post.serial_num}">1</i><span th:text="'('+${post.score}+'Score)'"></span><font th:text="${post.name}"></font><b class="icon iconfont"></b>
+                                                            </div>
+
+                                                            <div class="test_content_nr_main">
+                                                                <div class="row" style="margin-bottom: 10px;">
+                                                                    <div class="col-md-6 text-center"><h5 style="color: #00B5AD">Student answers</h5></div>
+                                                                    <div class="col-md-6 text-center"><h5 style="color: #00ce0d">Standard answer</h5></div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-6" style="word-wrap: break-word;" th:text="${post.userAnswer}"></div>
+                                                                    <div class="col-md-6">
+                                                                        <textarea  readonly class="form-control answer" rows="3" th:text="${post.standard_answer}"></textarea>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="row" style="color: red;">
+                                                                    <div class="col-md-1"> Score of this question:</div><span th:text="${post.tr_score}"></span>
+
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </th:block>
+                                                </th:block>
+
+                                            </ul>
+                                        </div>
+
+                                    </form>
+                                </div>
+
+                            </div>
+                            <div class="nr_right">
+                                <div class="nr_rt_main">
+                                    <div class="rt_nr1" style="top:105px;">
+                                        <div class="rt_content" style="border: 1px solid #e4e4e4;">
+                                            <div class="rt_content_tt">
+                                                <h2>MCQ</h2>
+                                                <p>
+                                                    <span>total&nbsp;&nbsp;<i class="content_lit" th:text="${d.size()}"></i>&nbsp;&nbsp;<span>question</span>
+                                                </p>
+                                            </div>
+                                            <div class="rt_content_nr answerSheet">
+                                                <ul >
+                                                    <th:block th:each="post : ${d}">
+                                                        <li><a th:href="'#qu_'+${post.id}" th:text="${post.serialNum}"></a></li>
+                                                    </th:block>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="rt_content">
+                                            <div class="rt_content_tt">
+                                                <h2>SAQ</h2>
+                                                <p>
+                                                    <span>total&nbsp;&nbsp;<i class="content_lit" th:text="${j.size()}"></i>&nbsp;&nbsp;<span>question</span>
+                                                </p>
+                                            </div>
+                                            <div class="rt_content_nr answerSheet">
+                                                <ul>
+
+                                                    <th:block th:each="post : ${j}">
+                                                        <li><a th:href="'#qu_'+${post.id}" th:text="${post.serialNum}"></a></li>
+                                                    </th:block>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!--nr end-->
+                        <div class="foot"></div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script th:src="@{/admin/test/jquery-1.11.3.min.js}"></script>
+<script th:src="@{/admin/test/jquery.easy-pie-chart.js}"></script>
+
+<script th:src="@{/admin/test/time/jquery.countdown.js}"></script>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript" th:inline="javascript">
+
+
+
+
+    var tale = new $.tale();
+
+
+    $(function() {
+    });
+    function submitS() {
+        var arr = [];
+        var ok =true;
+        $('.list').each(function(index){
+          var answer=   $(this).find(".answer").val();
+          var dueScore = $(this).find(".dueScore").val();
+          var recordId = $(this).find(".recordId").val();
+          var obj  ={standardAnswer:"",score:"",id:""};
+
+            if(dueScore==null||dueScore==''||!/^[+]?(0|([1-9]\d*))(\.\d+)?$/.test(dueScore)){
+                ok =false;
+            }
+          obj.standardAnswer=answer;
+          obj.score=dueScore;
+          obj.id=recordId;
+            arr.push(obj);
+            //alert(this + " " + index);
+            // 打印DIV的id属性
+            // alert($(this).attr('id'));
+        });
+        if(!ok) {
+            tale.alertConfirm({title: 'The score cannot be empty and must be a natural number'});
+            return;
+        }
+
+        var req = {testCorrectRecordsId:"",uid:"",list:[]};
+        req.testCorrectRecordsId=[[${testCorrectRecordsId}]];
+        req.uid=[[${session.login_user.userid}]];
+        req.list=arr;
+        tale.alertConfirm({
+            title:'Submit cannot be modified after correcting. Are you sure to submit?',
+            then: function () {
+                tale.post({
+                    url : '/admin/testCorrectRecords/save',
+                    data: JSON.stringify(req),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Submitted successfully');
+                            window.location.href='/admin/testCorrectRecords/list/'+[[${testPaperId}]];
+                        } else {
+                            tale.alertError(result.msg || 'Submit failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

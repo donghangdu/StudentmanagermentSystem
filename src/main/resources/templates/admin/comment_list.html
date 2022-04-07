@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Comment management',active='comments'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Comment management</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Comment content</th>
+                                <th>Reviewer</th>
+                                <th>Comment time</th>
+                                <th>Reviewer email</th>
+                                <th>Reviewer's website</th>
+                                <th>Comment status</th>
+                                <th>Operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:each="comment : ${comments.list}">
+                                <tr th:attr="cid=${comment.coid}">
+                                    <td>
+                                        <a th:href="@{${commons.site_url('/blog/article/')}+${comment.cid}+'#comments-content'}"
+                                           target="_blank" th:utext="${commons.article(comment.content)}"></a>
+                                    </td>
+                                    <td th:text="${comment.author}"></td>
+                                    <td th:text="${commons.fmtdate(comment.created, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td th:text="${comment.email}"></td>
+                                    <td><a th:href="@{${comment.url}}" target="_blank" th:text="${comment.url}"></a>
+                                    </td>
+                                    <td>
+                                        <th:block th:if="${comment.status == 'approved'}">
+                                            <span class="label label-success">Approved</span>
+                                        </th:block>
+                                        <th:block th:if="${comment.status == 'not_audit'}">
+                                            <span class="label label-default">Not reviewed</span>
+                                        </th:block>
+                                    </td>
+                                    <td>
+                                        <th:block th:if="${comment.status == 'not_audit'}">
+                                            <a href="javascript:void(0)" th:onclick="'updateStatus('+${comment.coid}+');'"
+                                               class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-check-square-o"></i>
+                                                <span>adopt</span>
+                                            </a>
+                                        </th:block>
+                                        <a href="javascript:void(0)" th:onclick="'delComment('+${comment.coid}+');'"
+                                           class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                            <i class="fa fa-trash-o"></i>
+                                            <span>delete</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav(${comments})"></div>
+                    </div>
+                </div>
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+
+    function delComment(coid) {
+        tale.alertConfirm({
+            title: 'Are you sure you want to delete this comment?',
+            then: function () {
+                tale.post({
+                    url: '/admin/comments/delete',
+                    data: {coid: coid},
+                    success: function (result) {
+                        if (result && result.code == 'success') {
+                            tale.alertOkAndReload('Comments deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Comment deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function updateStatus(coid) {
+        tale.alertConfirm({
+            title: 'Are you sure you pass the audit?',
+            then: function () {
+                tale.post({
+                    url: '/admin/comments/status',
+                    data: {coid: coid, status: "approved"},
+                    success: function (result) {
+                        if (result && result.code == 'success') {
+                            tale.alertOkAndReload('Comment status set successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Comment setting failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

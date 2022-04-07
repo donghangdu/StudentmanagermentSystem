@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<ol class="page-navigator" th:fragment="pageNav(pageInfo, prevText, nextText, prefix)">
+    <th:block th:if="${pageInfo.hasPreviousPage}">
+        <li class="prev">
+            <a th:href="@{'/'+${prefix}+'/'+${pageInfo.prePage}}" th:text="${prevText}"></a>
+        </li>
+    </th:block>
+
+
+    <th:block th:each="navIndex :${ pageInfo.navigatepageNums}">
+        <li th:class="${pageInfo.pageNum==navIndex}?'current':''">
+            <a th:href="@{'?'+${prefix}+'='+ ${navIndex}}" th:text="${navIndex}"></a>
+        </li>
+    </th:block>
+
+
+    <th:block th:if="${pageInfo.hasNextPage}">
+        <li class="next">
+            <a th:href="@{'/'+${prefix}+'/'+${pageInfo.nextPage}}" th:text="${nextText}"></a>
+        </li>
+    </th:block>
+
+</ol>
+
+<div th:fragment="pageAdminNav2(pageInfo,usertype)">
+    <div class="clearfix">
+        <ul class="pagination m-b-5 pull-right">
+
+            <th:block th:if="${pageInfo.pageNum != 1}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.firstPage+'&usertype='+(usertype=='teacher'?'1':'0')}}">Home Page</a>
+                </li>
+            </th:block>
+
+            <li th:if="${pageInfo.hasPreviousPage}">
+                <a th:href="@{'?page='+${pageInfo.prePage+'&usertype='+(usertype=='teacher'?'1':'0')}}" aria-label="Previous">
+                    <i class="fa fa-angle-left"></i>&nbsp;Before Page
+                </a>
+            </li>
+
+            <th:block th:each="nav : ${pageInfo.navigatepageNums}">
+                <li th:class="${nav==pageInfo.pageNum}?'active disabled':''">
+                    <a th:href="@{'?page='+${nav+'&usertype='+(usertype=='teacher'?'1':'0')}}" th:text="${nav}"></a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.hasNextPage}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.nextPage+'&usertype='+(usertype=='teacher'?'1':'0')}}" aria-label="Next">
+                        Next Page&nbsp;<i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.pages != pageInfo.pageNum}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.lastPage+'&usertype='+(usertype=='teacher'?'1':'0')}}">Last Page</a>
+                </li>
+            </th:block>
+
+            <li>
+                <span th:text="'Page'"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div th:fragment="pageAdminNav(pageInfo)">
+    <div class="clearfix">
+        <ul class="pagination m-b-5 pull-right">
+
+            <th:block th:if="${pageInfo.pageNum != 1}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.firstPage}}">home page</a>
+                </li>
+            </th:block>
+
+            <li th:if="${pageInfo.hasPreviousPage}">
+                <a th:href="@{'?page='+${pageInfo.prePage}}" aria-label="Previous">
+                    <i class="fa fa-angle-left"></i>&nbsp;before page
+                </a>
+            </li>
+
+            <th:block th:each="nav : ${pageInfo.navigatepageNums}">
+                <li th:class="${nav==pageInfo.pageNum}?'active disabled':''">
+                    <a th:href="@{'?page='+${nav}}" th:text="${nav}"></a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.hasNextPage}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.nextPage}}" aria-label="Next">
+                        next page&nbsp;<i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.pages != pageInfo.pageNum}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.lastPage}}">last page</a>
+                </li>
+            </th:block>
+
+            <li>
+                <span th:text="'Page'"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div th:fragment="pageAdminNav3(pageInfo,userid)">
+    <div class="clearfix">
+        <ul class="pagination m-b-5 pull-right">
+
+            <th:block th:if="${pageInfo.pageNum != 1}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.firstPage+'&userid='+userid}}">home page</a>
+                </li>
+            </th:block>
+
+            <li th:if="${pageInfo.hasPreviousPage}">
+                <a th:href="@{'?page='+${pageInfo.prePage+'&userid='+userid}}" aria-label="Previous">
+                    <i class="fa fa-angle-left"></i>&nbsp;before page
+                </a>
+            </li>
+
+            <th:block th:each="nav : ${pageInfo.navigatepageNums}">
+                <li th:class="${nav==pageInfo.pageNum}?'active disabled':''">
+                    <a th:href="@{'?page='+${nav+'&userid='+userid}}" th:text="${nav}"></a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.hasNextPage}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.nextPage+'&userid='+userid}}" aria-label="Next">
+                        next page&nbsp;<i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.pages != pageInfo.pageNum}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.lastPage+'&userid='+userid}}">last page</a>
+                </li>
+            </th:block>
+
+            <li>
+                <span th:text="'Page'"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div th:fragment="pageAdminNav4(pageInfo,userid,classid)">
+    <div class="clearfix">
+        <ul class="pagination m-b-5 pull-right">
+
+            <th:block th:if="${pageInfo.pageNum != 1}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.firstPage+'&userid='+userid+'&classid='+classid}}">home page</a>
+                </li>
+            </th:block>
+
+            <li th:if="${pageInfo.hasPreviousPage}">
+                <a th:href="@{'?page='+${pageInfo.prePage+'&userid='+userid+'&classid='+classid}}" aria-label="Previous">
+                    <i class="fa fa-angle-left"></i>&nbsp;before page
+                </a>
+            </li>
+
+            <th:block th:each="nav : ${pageInfo.navigatepageNums}">
+                <li th:class="${nav==pageInfo.pageNum}?'active disabled':''">
+                    <a th:href="@{'?page='+${nav+'&userid='+userid+'&classid='+classid}}" th:text="${nav}"></a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.hasNextPage}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.nextPage+'&userid='+userid+'&classid='+classid}}" aria-label="Next">
+                        next page&nbsp;<i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </th:block>
+
+            <th:block th:if="${pageInfo.pages != pageInfo.pageNum}">
+                <li>
+                    <a th:href="@{'?page='+${pageInfo.lastPage+'&userid='+userid+'&classid='+classid}}">last page</a>
+                </li>
+            </th:block>
+
+            <li>
+                <span th:text="'Page'"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

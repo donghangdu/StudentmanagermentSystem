@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wip.dao.AttAchDao">
+
+    <!--Table name-->
+    <sql id="BASE_TABLE">
+        t_attach
+    </sql>
+
+    <!--List of attachments-->
+    <sql id="BASE_COLUMN">
+        aa.id, aa.fname, aa.ftype, aa.fkey, aa.authorId, aa.created,
+    </sql>
+
+    <!--User table-->
+    <sql id="TABLE_USER">
+         <include refid="com.wip.dao.UserDao.BASE_TABLE"/>
+    </sql>
+
+    <!--The fields required by the user table of the associated query-->
+    <sql id="REL_USER_COLUMN">
+         u.username
+    </sql>
+
+
+    <!--Add a single attachment-->
+    <insert id="addAttAch" parameterType="com.wip.model.AttAchDomain">
+        INSERT INTO
+          <include refid="BASE_TABLE"/>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            fname,
+            ftype,
+            fkey,
+            authorId,
+            created
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            #{fname, jdbcType=VARCHAR},
+            #{ftype, jdbcType=VARCHAR},
+            #{fkey, jdbcType=VARCHAR},
+            #{authorId, jdbcType=INTEGER},
+            UNIX_TIMESTAMP(NOW())
+        </trim>
+    </insert>
+
+    <!--Get all the attachment information-->
+    <select id="getAtts" resultType="com.wip.dto.AttAchDto">
+        SELECT
+            <trim suffix="" suffixOverrides=",">
+                <include refid="BASE_COLUMN"/>
+                <include refid="REL_USER_COLUMN"/>
+            </trim>
+        FROM
+            <include refid="BASE_TABLE"/> AS aa
+        LEFT JOIN
+            <include refid="TABLE_USER"/> AS u
+        ON
+            aa.authorId = u.uid
+        ORDER BY
+            aa.created DESC
+    </select>
+
+    <!--Get the total number of attachments-->
+    <select id="getAttAchCount" resultType="java.lang.Long">
+        SELECT
+          COUNT(*)
+        FROM
+          <include refid="BASE_TABLE"/>
+    </select>
+
+    <!--Get attachment information through ID-->
+    <select id="getAttAchById" resultType="com.wip.dto.AttAchDto">
+        SELECT
+            <trim suffix="" suffixOverrides=",">
+                <include refid="BASE_COLUMN"/>
+                <include refid="REL_USER_COLUMN"/>
+            </trim>
+        FROM
+            <include refid="BASE_TABLE"/> AS aa
+        LEFT JOIN
+            <include refid="TABLE_USER"/> AS u
+        ON
+            aa.authorId = u.uid
+        WHERE
+            aa.id = #{id, jdbcType=INTEGER}
+    </select>
+
+    <!--Delete attachment information by ID-->
+    <delete id="deleteAttAch">
+        DELETE FROM
+          <include refid="BASE_TABLE"/>
+        WHERE
+          id = #{id, jdbcType=INTEGER}
+    </delete>
+
+</mapper>

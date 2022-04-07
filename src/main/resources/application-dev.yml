@@ -1,0 +1,75 @@
+server:
+  port: 8888
+spring:
+  datasource:
+    name: mysql_test
+    type: com.alibaba.druid.pool.DruidDataSource
+    #druid
+    druid:
+      #filters
+      filters: stat
+      driver-class-name: com.mysql.jdbc.Driver
+      #basic attribute
+      url: jdbc:mysql://localhost:3306/lu_tale?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true
+      username: root
+      password: 123456
+      #initial-size/MAX/MIN
+      initial-size: 1
+      min-idle: 1
+      max-active: 20
+      #Get connection wait timeout
+      max-wait: 60000
+      #How often is the detection performed to detect idle connections that need to be off
+      time-between-eviction-runs-millis: 60000
+      #The minimum lifetime of a connection in the pool
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      #Turn on pscache and specify the size of pscache on each connection. Oracle is set to true and MySQL is set to false. There are many sub databases and sub tables. It is recommended to set false
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 20
+  http:
+     multipart:
+         max-file-size: 10MB  #The size of a single file
+         max-request-size: 100MB  #Total size of uploaded files
+  thymeleaf:
+    prefix: classpath:/templates/
+    check-template-location: true
+    mode: HTML5
+    suffix: .html
+    encoding: utf-8
+    cache: false
+
+  aop:
+    auto: true
+    proxy-target-class: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+
+logging:
+  level:
+    com.wip.dao: DEBUG
+
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.wip.model
+  configuration:
+    call-setters-on-nulls: true
+
+swagger:
+  show: true
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+  retrunPageInfo: check

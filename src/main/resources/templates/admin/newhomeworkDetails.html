@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newHomeworkPaper'">
+<head>
+    <meta charset="UTF-8">
+    <title>Work</title>
+    <link rel="stylesheet" href="../../../forum/layui/css/layui.css" />
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">id</label>
+        <div class="layui-input-block" id = "iddiv">
+            <input type="text" name="id" id = "id" required  lay-verify="required"  autocomplete="off" class="layui-input" readonly>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Workname</label>
+        <div class="layui-input-block">
+            <input type="text" name="workname" required   autocomplete="off" class="layui-input" id="workname" readonly>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Classname</label>
+        <div class="layui-input-block">
+            <select name="class" id="class" disabled="disabled">
+                <option value="">Choose a class</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Teacher</label>
+        <div class="layui-input-block">
+            <select name="teacher" lay-verify="required" id = "teacher" disabled="disabled">
+                <option value="">Choose a teacher</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Time</label>
+        <div class="layui-inline">
+            <input type="text" lay-verify="required" class="layui-input" id="time" disabled="disabled">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Status</label>
+        <div class="layui-input-block">
+            <input type="checkbox" id="status" name="switch" lay-skin="switch" disabled="disabled">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Score</label>
+        <div class="layui-input-block" >
+            <input type="text" name="id" id = "scorefinsh" required  lay-verify="required"  autocomplete="off" class="layui-input" readonly>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">Workcontent</label>
+        <div class="layui-input-block">
+            <textarea id="content" name="content" lay-verify="required" placeholder="Please input the content..." class="layui-textarea" readonly></textarea>
+        </div>
+    </div>
+    <table class="layui-table">
+        <colgroup>
+            <col width="100">
+            <col width="50">
+            <col width="10">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>filename</th>
+            <th>filetype</th>
+            <th>operation</th>
+        </tr>
+        </thead>
+        <tbody id="filebody">
+        </tbody>
+        <tbody id="filestubody">
+        </tbody>
+    </table>
+    <div class="layui-form-item" id = "scorediv">
+        <label class="layui-form-label">Score</label>
+        <div class="layui-input-block">
+            <input type="number" name="title" required  lay-verify="required" placeholder="Score" autocomplete="off" id = "Score" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item"id="submitdiv">
+        <div class="layui-input-block">
+            <button type="text" class="layui-btn" lay-submit="" lay-filter="" onclick="updateScoreAndState()">Submit</button>
+        </div>
+    </div>
+</form>
+<script  src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+<script src="../../../forum/layui/layui.js"></script>
+<script>
+    var id = parent.pid;
+    var userid = parent.puserid;
+    var state = parent.pstate;
+    var workid = parent.pwkid;
+    layui.use('form', function(){
+        var form = layui.form;
+    });
+    if(state=='2'){
+        $("#scorediv").hide();
+        $("#submitdiv").hide();
+    }
+    if(state=='1'){
+        $("#scorefinsh").hide();
+    }
+    $(function () {
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#time'
+                ,type: 'datetime'
+            });
+        });
+        $.ajax({
+            url:"/admin/newhomeworkPaper/queryClassAndTeacherInfo",
+            type:"post",
+            async:false,
+            data:{},
+            success:function(res){
+                var testclass = res.data.testclass;
+                var testuser = res.data.testuser;
+                var classhtml="";
+                for(var i =0;i<testclass.length;i++){
+                    classhtml+='"<option value="'+testclass[i].id+'">'+testclass[i].classname+'</option>"';
+                }
+                $("#class").append(classhtml);
+                var userhtml="";
+                for(var i =0;i<testuser.length;i++){
+                    if(testuser[i].usertype=="1"){
+                        userhtml+='"<option value="'+testuser[i].userid+'">'+testuser[i].realname+'</option>"';
+                    }
+                }
+                $("#teacher").append(userhtml);
+            },
+            error:function(e){
+            }
+        });
+        $.ajax({
+            url:"/admin/newhomeworkPaper/queryNewWorkInfo",
+            type:"post",
+            async:false,
+            data:{
+                id:id
+            },
+            success:function(res){
+                $("#id").val(res.data.id);
+                $("#teacher").val(res.data.authorid);
+                $("#class").val(res.data.classid);
+                $("#content").val(res.data.content);
+                if(res.data.status=="on"){
+                    $("#status").attr("checked",true);
+                }
+                $("#time").val(res.data.time);
+                $("#workname").val(res.data.workname);
+                var filetype = substr(res.data.filename)
+                var html="";
+                html+='"<td>'+res.data.filename+'</td>"';
+                html+='"<td>'+filetype+'</td>"';
+                html+='"<td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete" onclick="downloadfile(\''+res.data.id+'\')">download</button></td>"';
+                $("#filebody").append(html);
+            },
+            error:function(e){
+            }
+        });
+        if(state=="1" || state=="2") {
+            $.ajax({
+                url: "/admin/newhomeworkPaper/queryStuAnswer",
+                type: "post",
+                async: false,
+                data: {
+                    id: id,
+                    userid: userid
+                },
+                success: function (res) {
+                    var filetype = substr(res.data[0].filename)
+                    var html = "";
+                    html += '"<td>(Answer)' + res.data[0].filename + '</td>"';
+                    html += '"<td>' + filetype + '</td>"';
+                    html += '"<td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete" onclick="downloadstufile(\'' + res.data[0].id + '\',\'' + res.data[0].userid + '\')">download</button></td>"';
+                    $("#filestubody").append(html);
+                    $("#scorefinsh").val(res.data[0].score);
+                },
+                error: function (e) {
+                }
+            });
+        }
+    });
+    function getQueryString(name){
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
+    function substr(fileName) {
+        var first = fileName.lastIndexOf(".");
+        var namelength = fileName.length;
+        var filesuffix = fileName.substring(first + 1, namelength );
+        return filesuffix;
+    }
+    function downloadfile(id) {
+        var a = document.createElement('a');
+        a.setAttribute('download','file.txt');
+        a.setAttribute('href', 'http://localhost:8888/admin/newhomeworkPaper/downloadFile?id='+id);
+        document.body.appendChild(a);
+        a.click();
+    }
+    function downloadstufile(id,userid) {
+        var a = document.createElement('a');
+        a.setAttribute('download','file.txt');
+        a.setAttribute('href', 'http://localhost:8888/admin/newhomeworkPaper/downloadstuFile?id='+id+'&userid='+userid);
+        document.body.appendChild(a);
+        a.click();
+    }
+    function updateScoreAndState() {
+        var id = workid;
+        var state = "2";
+        var score = $("#Score").val();
+        $.ajax({
+            url: "/admin/newhomeworkCorrectRecords/updateScoreAndState",
+            type: "post",
+            async: false,
+            data: {
+                id: id,
+                state: state,
+                score:score
+            },
+            success: function (res) {
+                parent.layer.msg("Submit success!",{icon:1})
+                parent.layer.closeAll();
+            },
+            error: function (e) {
+            }
+        });
+    }
+</script>
+</body>
+</html>

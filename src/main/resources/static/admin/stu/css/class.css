@@ -1,0 +1,35 @@
+#root .list{
+   width: 100%;
+   margin: 50px auto;
+   text-align: center;
+   border: solid 1px #333; 
+   border-collapse: collapse;
+}
+#root .list tr:nth-child(1){
+    font-weight: 700;
+    font-size: 17px;
+}
+#root .list td{
+    border: solid 1px #333; 
+    padding: 10px 0;
+}
+#root .btn{
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    background-color: #2e84f5;
+    color: #fff;
+    border-radius: 5px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+}
+#root .list1{
+    margin: 50px auto;
+}
+.el-table::before{
+    height: 0 !important;
+}
+.pagination{
+    margin-bottom: 20px;
+}

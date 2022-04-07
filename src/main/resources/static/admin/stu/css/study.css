@@ -1,0 +1,34 @@
+#root .list{
+    width: 100%;
+    margin: 50px auto;
+}
+#root .list li{
+    /* border-bottom: solid 1px #ccc; */
+    padding: 10px 5px;
+    cursor: pointer;
+}
+#root .list li .title{
+    font-weight: 700;
+    font-size: 17px;
+}
+#root .list li .tip{
+    color:#999;
+    margin: 6px 0;
+}
+#root .list li .time{
+    font-size: 15px;
+    color:#999;
+}
+.pagination{
+    margin-bottom: 20px;
+}
+.tip{
+    padding: 5px;
+    color:#999;
+}
+.cont{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='homeworkPaper'">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width" />
+    <meta name="author" content="www.lzqcode.com" />
+    <meta name="robots" content="all" />
+    <title>留言板</title>
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="layui/css/layui.css" />
+    <link rel="stylesheet" href="css/master.css" />
+    <link rel="stylesheet" href="css/gloable.css" />
+    <link rel="stylesheet" href="css/nprogress.css" />
+    <link rel="stylesheet" href="css/message.css" /> 
+</head>
+<body>
+<div class="header">
+</div>
+<header class="gird-header">
+    <div class="header-fixed">
+        <div class="header-inner">
+            <a href="javascript:void(0)" class="header-logo" id="logo"></a>
+        </div>
+    </div>
+</header>
+<div class="doc-container" id="doc-container">
+     <div class="container-fixed">
+        <div class="f-cb"></div>
+        <div class="mt20">
+            <section class="msg-remark">
+                <h1>Message Board</h1>
+                <p>
+                    Would you like to leave a message?
+                </p>
+            </section>
+            <ul class="message-list" id="message-list">
+            </ul>
+        </div>
+        <div class="container-inner">
+            <div class="textarea-wrap message" id="textarea-wrap">
+                <form class="layui-form blog-editor" action="">
+                    <div class="layui-form-item">
+                        <textarea name="editorContent" lay-verify="content" id="remarkEditor" placeholder="Please input the reply" class="layui-textarea layui-hide"></textarea>
+                    </div>
+                    <div class="layui-form-item">
+                        <button class="layui-btn" type="button" lay-filter="formLeaveMessage" id="saveMessage">Save Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui.js"></script>
+<script src="js/yss/gloable.js"></script>
+<script src="js/plugins/nprogress.js"></script>
+<script>NProgress.start();</script>
+<script src="js/pagemessage.js"></script>
+<script>NProgress.start();</script>
+<script  src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+<script>
+window.onload = function () {
+    NProgress.done();
+    var id = getQueryString("classid");
+    $.ajax({
+        url:"/admin/message/queryMessage",
+        type:"post",
+        data:{
+           id:id  //传递参数
+        },
+        success:function(res){
+            if (res.code == 'success') {
+                $("#logo").text("Welcome to  "+res.data.classname);
+            }
+        },
+        error:function(e){
+            // 抛弃异常
+        }
+    });
+    initMessage();
+};
+$('#saveMessage').click(function() {
+    var userid = getQueryString("userid");
+    var username = getQueryString("username");
+    var classid = getQueryString("classid");
+    var content = layedit.getContent(editIndex);
+    var time = new Date();
+    var data ={
+            userid:userid,
+            username:username,
+            classid:classid,
+            content:content,
+            time:time
+        };
+    $.ajax({
+        url:"/admin/message/addMessage",
+        type:"post",
+        data:data,
+        success:function(res){
+            layer.msg('Published successfully！', {icon: 1});
+        },
+        error:function(e){
+            // 抛弃异常
+        }
+    });
+    location.reload();
+});
+function initMessage() {
+    layui.use('flow', function(){
+        var flow = layui.flow;
+        var totalpage=0;
+        var currentPage=1;
+        flow.load({
+            elem: '#message-list'
+            ,scrollElem: '#message-list'
+            ,done: function(page, next){
+                setTimeout(function(){
+                    var id = getQueryString("classid");
+                    var lis = [];
+                    $.ajax({
+                        url:"/admin/message/queryMessageByClassid",
+                        type:"post",
+                        data:{
+                            classid:id,
+                            currentPage:currentPage
+                        },
+                        success:function(res){
+                            if (res.code == 'success') {
+                                totalpage=res.data.totalPage;
+                                for(var i=0;i<res.data.list.length;i++){
+                                    if(res.data.list[i].parentid=="" || res.data.list[i].parentid==null){
+                                        lis.push(' <li class="zoomIn article">'+
+                                            '     <div class="comment-parent">'+
+                                            '         <a name="remark-1"></a>'+
+                                            '         <img src="image/t2.png" />'+
+                                            '         <div class="info">'+
+                                            '             <span class="username">'+res.data.list[i].username+'</span>'+
+                                            '         </div>'+
+                                            '         <div class="comment-content">'+
+                                            '           '+res.data.list[i].content+''+
+                                            '         </div>'+
+                                            '         <p class="info info-footer">'+
+                                            '             <span class="comment-time"> '+res.data.list[i].time+'</span>'+
+                                            '             <a href="javascript:;" onclick="setReplyinfo(\''+res.data.list[i].id+'\',\''+res.data.list[i].userid+'\',\''+res.data.list[i].username+'\')" class="btn-reply" data-targetid="1" data-targetname="'+res.data.list[i].username+'">Reply</a>'+
+                                            '         </p>'+
+                                            '     </div>'+
+                                            '     <div class="comment-child" id = "childreply'+res.data.list[i].id+'">'+
+                                            '     </div>'+
+                                            '      <div class="replycontainer layui-hide">'+
+                                            '             <form class="layui-form" action="">'+
+                                            '                  <input type="hidden" name="remarkId" value="1">'+
+                                            '                  <input type="hidden" name="targetUserId" value="0">'+
+                                            '                  <div class="layui-form-item">'+
+                                            '                    <textarea name="replyContent" id="replyContent'+res.data.list[i].id+'" lay-verify="replyContent" placeholder="Please input the reply" class="layui-textarea" style="min-height:80px;"></textarea>'+
+                                            '                 </div>'+
+                                            '                  <div class="layui-form-item">'+
+                                            '                      <button id = "replybtn'+res.data.list[i].id+'"onclick= "saveReply(\''+res.data.list[i].id+'\')" type="button" class="layui-btn layui-btn-xs" data-id="'+res.data.list[i].id+'" lay-submit="formReply" lay-filter="formReply">submit</button>'+
+                                            '                 </div>' +
+                                            '         </form>' +
+                                            '   </div> ' +
+                                            '  </li>');
+                                    }
+                                }
+                                next(lis.join(''), page < totalpage);
+                                currentPage++;
+                            }
+                            initReplyMessage();
+                        },
+                        error:function(e){
+                        }
+                    });
+                    //To render the next page, the second parameter is to meet the "load more" condition,
+                    // that is, there are still pages behind
+                    //Pages is the total number of pages returned by Ajax.
+                    // Only when the current page is less than the total number of pages, more pages will continue to be loaded
+                    //Assume that the total number of pages is 10
+                }, 500);
+            }
+        });
+    });
+}
+function getQueryString(name){
+    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if(r!=null)return  unescape(r[2]); return null;
+}
+function saveReply(id) {
+    var replyContentId = "#replyContent"+id;
+    var btnid = "#replybtn"+id;
+    var userid = getQueryString("userid");
+    var username = getQueryString("username");
+    var classid = getQueryString("classid");
+    var content = $(replyContentId).val();
+    var replyname = $(btnid).attr("data-replyname");
+    var replyid = $(btnid).attr("data-replyid");
+    var time = new Date();
+    var data ={
+        userid:userid,
+        username:username,
+        replyname:replyname,
+        replyid:replyid,
+        classid:classid,
+        content:content,
+        parentid:id,
+        time:time
+    };
+    $.ajax({
+        url:"/admin/message/addMessage",
+        type:"post",
+        data:data,
+        success:function(res){
+            layer.msg('Published successfully！', {icon: 1});
+            initReplyMessage();
+        },
+        error:function(e){
+            // 抛弃异常
+        }
+    });
+};
+function initReplyMessage() {
+    var id = getQueryString("classid");
+    $("div[id*='childreply']").empty();
+    $.ajax({
+        url:"/admin/message/queryReplyByClassid",
+        type:"post",
+        data:{
+            classid:id,
+        },
+        success:function(res){
+            if (res.code == 'success') {
+                for(var i=0;i<res.data.length;i++){
+                    var parentId = "#childreply"+res.data[i].parentid;
+                    if(res.data[i].parentid!="" || res.data[i].parentid!=null){
+                            var html="";
+                            html+='<a name="reply-1"></a>'+
+                                     ' <img src="image/t2.png">'+
+                                    ' <div class="info">'+
+                                     '  <span class="username">'+res.data[i].username+'</span>'+
+                                    '  <span style="padding-right:0;margin-left:-5px;">Reply</span>'+
+                                    '   <span class="username">'+res.data[i].replyname+'</span>'+
+                                    '    <span>'+res.data[i].content+'</span>'+
+                                    ' </div>'+
+                                    ' <p class="info">'+
+                                    '    <span class="comment-time">2018-01-01</span>'+
+                                    '    <a href="javascript:;"onclick="setReplyinfo(\''+res.data[i].parentid+'\',\''+res.data[i].userid+'\',\''+res.data[i].username+'\')" class="btn-reply" data-targetid="2" data-targetname="'+res.data[i].username+'">Reply</a>'+
+                                    ' </p>';
+                            $(parentId).append(html);
+                    }
+                }
+            }
+        },
+        error:function(e){
+        }
+    });
+}
+function setReplyinfo(id,userid,username) {
+    var btnid = "#replybtn"+id;
+    $(btnid).attr("data-replyname",username);
+    $(btnid).attr("data-replyid",userid);
+}
+</script>
+</body>
+</html>

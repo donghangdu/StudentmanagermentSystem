@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Test paper statistics',active='testPaperStatistical'">
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+<div id="wrapper">
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">All Students</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="150">
+                                <col width="200">
+                                <col>
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th width="20%">User Name</th>
+                                <th width="5%">Realname</th>
+                                <th width="5%">Email</th>
+                                <th width="10%">Tel</th>
+                                <th width="10%">Address</th>
+                                <th width="20%">Raemark</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="post : ${testList}">
+                                    <tr th:cid="${post.userid}">
+                                        <td>
+                                            <th:block th:text="${post.username}"/>
+                                        </td>
+                                        <td><th:block th:text="${post.realname}"/></td>
+                                        <td><th:block th:text="${post.email}"/></td>
+                                        <td><th:block th:text="${post.telephone}"/></td>
+                                        <td><th:block th:text="${post.address}"/></td>
+                                        <td><th:block th:text="${post.remark}"/></td>
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript" th:inline="javascript">
+</script>
+</body>
+</html>

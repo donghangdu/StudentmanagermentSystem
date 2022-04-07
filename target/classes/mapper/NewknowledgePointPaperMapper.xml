@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.NewknowledgePointPaperMapper">
+    <resultMap id="BaseResultMap" type="com.wip.model.NewKnowledgePointList">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="cid" jdbcType="INTEGER" property="cid" />
+        <result column="classid" jdbcType="INTEGER" property="classid" />
+        <result column="classname" jdbcType="VARCHAR" property="classname" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="titlePic" jdbcType="VARCHAR" property="titlePic" />
+        <result column="created" jdbcType="INTEGER" property="created" />
+        <result column="createdtime" jdbcType="VARCHAR" property="createdtime" />
+        <result column="modified" jdbcType="INTEGER" property="modified" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="authorId" jdbcType="INTEGER" property="authorId" />
+        <result column="authorname" jdbcType="VARCHAR" property="authorname" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="status" jdbcType="VARCHAR" property="status" />
+        <result column="tags" jdbcType="VARCHAR" property="tags" />
+        <result column="categories" jdbcType="VARCHAR" property="categories" />
+        <result column="hits" jdbcType="INTEGER" property="hits" />
+        <result column="commentsNum" jdbcType="INTEGER" property="commentsNum" />
+        <result column="allowComment" jdbcType="INTEGER" property="allowComment" />
+    </resultMap>
+    <select id="selectNewKnowledgePointList" resultType="java.util.Map">
+        select tp.cid,tp.classid,tp.title,tp.titlePic,tp.created,tp.modified,tp.classname,tp.authorname,tp.createdtime,
+        tp.content,tp.authorId,tp.type,tp.status,tp.tags,tp.categories,tp.hits,tp.commentsNum,tp.allowComment from t_contents tp
+        where tp.authorId=#{userid}
+        order by tp.cid desc
+    </select>
+</mapper>

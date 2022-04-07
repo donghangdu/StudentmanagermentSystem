@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.TestClassMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.TestClass">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="grade" jdbcType="VARCHAR" property="grade" />
+    <result column="className" jdbcType="VARCHAR" property="classname" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="headImage" jdbcType="LONGVARCHAR" property="headimage" />
+  </resultMap>
+</mapper>

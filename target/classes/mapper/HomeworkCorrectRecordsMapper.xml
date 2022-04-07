@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.HomeworkCorrectRecordsMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.HomeworkCorrectRecords">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="test_paper_id" jdbcType="INTEGER" property="testPaperId" />
+    <result column="creator" jdbcType="INTEGER" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="correct_status" jdbcType="TINYINT" property="correctStatus" />
+    <result column="correct_time" jdbcType="TIMESTAMP" property="correctTime" />
+    <result column="correct_creator" jdbcType="INTEGER" property="correctCreator" />
+  </resultMap>
+
+  <select id="selectHomeworkCorrectRecordsAndUserList" resultType="java.util.Map">
+    select tcr.*,stu.*,tea.realname teaRealname,tq.sum_score,b.className from homework_correct_records tcr
+    left join test_user stu on tcr.creator = stu.userid
+    left join test_user tea on tcr.correct_creator = tea.userid
+    left join (select creator,test_paper_id,sum(score) sum_score from homework_record group by test_paper_id,creator) tq on tq.test_paper_id = tcr.test_paper_id and  tq.creator = tcr.creator
+    left join (select * from test_class where status=1) as b on stu.classid=b.id
+    <where>
+      <if test="testPaperId!=null">
+        and tcr.test_paper_id = #{testPaperId}
+      </if>
+    </where>
+  </select>
+  <select id="selectUserRecordAndQuestion" resultType="java.util.Map">
+    select tq.*,tr.answer userAnswer,if(tr.answer = tq.answer,tq.score,0) as dueScore,tr.id recordId,tr.standard_answer,tr.score tr_score from homework_record tr
+    left join homework_correct_records tcr on tcr.test_paper_id = tr.test_paper_id and tcr.creator = tr.creator
+    left join homework_question tq on tr.test_question_id = tq.id
+    where tcr.id=#{id}
+  </select>
+</mapper>

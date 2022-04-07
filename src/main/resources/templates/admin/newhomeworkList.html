@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newHomeworkPaper'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Complete the operation record</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="10%">Student name</th>
+                                <th >Student class</th>
+                                <th width="15%">Complete operation time</th>
+                                <th width="10%">Correction status</th>
+                                <th>Operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:each="post : ${testCorrectRecordsList.list}">
+                                <tr th:cid="${post.id}">
+                                    <td>
+                                        <th:block th:text="${post.realname}"/>
+                                    </td>
+                                    <td th:text="${post.className}"></td>
+                                    <td><th:block th:text="${post.time}"/></td>
+                                    <td>
+                                        <th:block th:if="${post.state == '1'}">
+                                            <span class="label label-success">Not Corrected</span>
+                                        </th:block>
+                                        <th:block th:if="${post.state == '2'}">
+                                            <span class="label label-default">corrected</span>
+                                        </th:block>
+                                    </td>
+                                    <td>
+                                        <th:block th:if="${post.state}=='1'">
+                                            <a href="javascript:;" th:onclick="'openCorrect(\'' + ${post.workid} + '\',\'' + ${post.state} + '\',\'' + ${post.userid} + '\',\'' + ${post.id} + '\')'" class="btn btn-primary btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-edit"></i> <span>Correction</span>
+                                            </a>
+                                        </th:block>
+                                        <th:block th:if="${post.state}=='2'">
+                                            <a  th:onclick="'openCorrect(\'' + ${post.workid} + '\',\'' + ${post.state} + '\',\'' + ${post.userid} + '\',\'' + ${post.id} + '\')'"  class="btn btn-warning btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-eye"></i> <span>check</span>
+                                            </a>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                            </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav(${testCorrectRecordsList})"></div>
+                    </div>
+                </div>
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script type="text/javascript">
+    var pid ="";
+    var pstate ="";
+    var puserid ="";
+    function openCorrect(id,state,userid,wkid){
+            pid=id;
+            pstate=state;
+            puserid=userid;
+            pwkid=wkid;
+            var index = layui.use('layer',function () { layer.open({
+                type : 2,
+                title : 'correcthomeworkpage',
+                content : "/admin/newhomeworkCorrectRecords/correcthomeworkpage?id="+id,
+                area :  ['1000px', '900px'],
+                maxmin : true,
+                resize : false,
+                shade:0,
+                success : function(layer_obj, index) {
+                },
+                end : function() {
+                    window.location.reload();
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

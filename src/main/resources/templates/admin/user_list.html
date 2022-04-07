@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="grade=${grade},active=${usertype}">
+<header th:replace="admin/fragments/header::headerFragment(${grade},${active})"></header>
+<body class="fixed-left">
+<style>
+    .table>tbody>tr>td {
+        padding: 8px;
+        line-height: 1.42857143;
+        margin: 0 auto;
+        vertical-align:middle;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+    .table>thead:first-child>tr:first-child>th{
+        text-align: center;
+    }
+
+</style>
+
+
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12" style="padding-left: 1px;">
+<!--                        <button  id="save-category-btn" type="submit" class="btn btn-info waves-effect waves-light m-l-10" th:text="${usertype=='student'?'New Students':'New Teachers'}">
+                        </button>-->
+                        <button id="save-category-btn"  type="submit" class="btn btn-info waves-effect waves-light m-l-10" th:text="${usertype=='student'?'New Students':'New Teachers'}">
+                        </button>
+                        <input id="sval" type="hidden" th:value="${usertype=='student'?'Students':'Teachers'}">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-grade" th:text="${grade}"></h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>E-mail Address</th>
+                                <th>Telephone</th>
+                                <th>Address</th>
+                                <th>Group</th>
+                                <th>Account Info</th>
+                                <th>User Type</th>
+                                <th>Account Status</th>
+                                <th>Operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="post : ${TestUser.list}">
+                                    <tr th:id="${post.userid}">
+<!--                                        <td >-->
+<!--                                            <img width="50px" class="img-circle" th:href="@{'/admin/article/'+${post.id}}" th:src="${post.headimage}"/>-->
+<!--                                        </td>-->
+                                        <td>
+                                            <th:block  th:text="${post.username}"/>
+                                        </td>
+                                        <td>
+                                            <th:block  th:text="${post.realname}"/>
+                                        </td>
+                                        <td style="margin-top: 10px">
+                                            <th:block th:text="${post.email}"/>
+                                        </td>
+                                        <td><th:block th:text="${post.telephone}"/></td>
+                                        <td><th:block th:text="${post.address}"/></td>
+                                        <td><th:block th:text="${post.className}"/></td>
+                                        <td><th:block th:text="${post.remark}"/></td>
+                                        <td>
+                                            <th:block th:if="${post.usertype == 2}">
+                                                <span class="label label-success">administrators</span>
+                                            </th:block>
+                                           <th:block th:if="${post.usertype == 1}">
+                                               <span class="label label-info">teacher</span>
+                                           </th:block>
+                                           <th:block th:if="${post.usertype == 0}">
+                                               <span class="label label-info">student</span>
+                                           </th:block>
+                                        </td>
+                                        <td>
+                                            <th:block th:if="${post.userstate == 1}">
+                                                <span class="label label-success">Effective</span>
+                                            </th:block>
+                                           <th:block th:if="${post.userstate == 0}">
+                                               <span class="label label-default">invalid</span>
+                                           </th:block>
+
+                                        </td>
+                                        <td>
+                                            <a th:href="@{'/admin/user/edit?userid='+${post.userid}}" class="btn btn-primary btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-edit"></i> <span>Edit</span>
+                                            </a>
+                                            <a href="javascript:void(0)" th:onclick="'delPost('+${post.userid}+');'" class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-trash-o"></i> <span>Delete</span>
+                                            </a>
+<!--                                            <a class="btn btn-warning btn-sm waves-effect waves-light m-b-5" th:href="${post.status=='post' ? commons.blogPermalink(post.id) : commons.photoPermalink(post.id)}" target="_blank">-->
+<!--                                                <i class="fa fa-rocket"></i> <span>preview</span>-->
+<!--                                            </a>-->
+                                        </td>
+                                    </tr>
+                                </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav2(${TestUser},${usertype})"></div>
+                    </div>
+                </div>
+
+                <div th:replace="admin/fragments/footer::footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer::footers"></div>
+<script  th:inline="javascript" type="text/javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure you want to delete this user?',
+            then: function () {
+                tale.post({
+                    url : '/admin/user/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code === 'success'){
+                            tale.alertOkAndReload('User deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'User deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    $('#save-category-btn').click(function () {
+        window.location.href="/admin/user/add?usertype="+[[${usertype}]];
+    });
+    /*]]>*/
+</script>
+<script>
+
+</script>
+</body>
+</html>

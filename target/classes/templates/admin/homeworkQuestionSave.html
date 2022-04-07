@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='homeworkPaper'"
+      xmlns="http://www.w3.org/1999/html">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<link th:href="@{/admin/plugins/toggles/toggles.css}" rel="stylesheet"/>
+<link th:href="@{/admin/css/bulid.css}" rel="stylesheet"/>
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Question management</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-color panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title" th:text="${operation}"></h3>
+                            </div>
+                            <div class="panel-body">
+                                <form class="form-horizontal" role="form" id="global-form">
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Topic content</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="name" placeholder="Topic content"
+                                                   th:value="${testQuestion.name}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Score of correct answer</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="score" placeholder="Score of correct answer"
+                                                   th:value="${testQuestion.score}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="comment-div" >
+                                        <label class="col-md-3 control-label">Question type</label>
+                                        <div class="col-md-9" style="margin-top: 6px">
+                                            <div class="col-md-2 checkbox checkbox-success" >
+                                                <input onclick="testType('single choice')" type="radio" name="type" id="MCQ" value="1" th:checked="${testQuestion.type==null or testQuestion.type == 1}">
+                                                <label for="MCQ">
+                                                    MCQ
+                                                </label>
+                                            </div>
+                                            <div class="col-md-2 checkbox checkbox-success">
+                                                <input  onclick="testType('brief answer')" type="radio" name="type" id="SAQ" value="2" th:checked="${testQuestion.type == 2}">
+                                                <label for="SAQ">
+                                                    SAQ
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="Singlechoice" th:style="${testQuestion.type==1 or testQuestion.type==null?'':'display:none;'}">
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">A option Content</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="a" placeholder="A option Content"
+                                                   th:value="${testQuestion.a}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">B option Content</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="b" placeholder="B option Content"
+                                                   th:value="${testQuestion.b}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">C option Content</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="c" placeholder="C option Content"
+                                                   th:value="${testQuestion.c}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">D option Content</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="d" placeholder="D option Content"
+                                                   th:value="${testQuestion.d}" required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Standard answer</label>
+                                        <div class="col-md-9">
+                                            <div class="col-md-1 checkbox checkbox-success">
+                                                <input type="radio" name="answer" id="a" value="a" th:checked="${testQuestion.answer==null or testQuestion.answer == 'a'}">
+                                                <label for="a">
+                                                    A
+                                                </label>
+                                            </div>
+                                            <div  class="col-md-1 checkbox checkbox-success">
+                                                <input type="radio" name="answer" id="b" value="b" th:checked="${testQuestion.answer == 'b'}">
+                                                <label for="b">
+                                                    B
+                                                </label>
+                                            </div>
+                                            <div  class="col-md-1 checkbox checkbox-success">
+                                                <input type="radio" name="answer" id="c" value="c" th:checked="${testQuestion.answer == 'c'}">
+                                                <label for="c">
+                                                    C
+                                                </label>
+                                            </div>
+                                            <div   class="col-md-1 checkbox checkbox-success">
+                                                <input type="radio" name="answer" id="d" value="d" th:checked="${testQuestion.answer == 'd'}">
+                                                <label for="d">
+                                                    D
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <div class="clearfix pull-right">
+                                        <a  class="btn btn-success waves-effect waves-light" href="#" onclick="javascript :history.back(-1);">
+                                            Back
+                                        </a>
+                                            <button type="button" class="btn btn-primary waves-effect waves-light" th:onclick="'saveTestQuestion()'">
+                                                <span th:text="${operation=='Add test questions'?'add':'edit'}"></span>
+                                            </button>
+
+                                    </div>
+                                    <input type="hidden" th:value="${testPaper.id}" name="testPaperId" id="testPaperId">
+                                    <input type="hidden" th:value="${testQuestion.id}" name="id" id="id">
+                                    <input type="hidden" th:value="${testQuestion.serialNum}" name="serialNum" id="serialNum">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="clearfix"></div>
+
+
+
+                </div>
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script src="//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js"></script>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+
+    /**
+     * add
+     */
+    function saveTestQuestion() {
+        var param = $('#global-form').serializeJson();
+        if(param.name==null||param.name==''){
+            tale.alertConfirm({title:'Title cannot be empty'});
+            return
+        }
+
+        if(param.score==null||param.score==''||!/^\+?[1-9][0-9]*$/.test(param.score)){
+            tale.alertConfirm({title:'The score cannot be empty and must be a positive integer'});
+            return
+        }
+        if(param.type=='1') {
+            if (param.a == null || param.a == '') {
+                tale.alertConfirm({title: 'Option a cannot be empty'});
+                return
+            }
+            if (param.b == null || param.b == '') {
+                tale.alertConfirm({title: 'Option b cannot be empty'});
+                return
+            }
+            if (param.c == null || param.c == '') {
+                tale.alertConfirm({title: 'Option c cannot be empty'});
+                return
+            }
+            if (param.d == null || param.d == '') {
+                tale.alertConfirm({title: 'Option d cannot be empty'});
+                return
+            }
+            if (param.answer == null || param.answer == '') {
+                tale.alertConfirm({title: 'Standard option cannot be empty'});
+                return
+            }
+        }
+
+        param.creator=parseInt([[${session.login_user.userid}]]);
+        param.type = parseInt(param.type);
+        param.score = parseInt(param.score);
+        tale.post({
+            url : '/admin/homeworkQuestion/save',
+            data: JSON.stringify(param),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if(result && result.code == 'success'){
+                    tale.alertOk('Operation successful');
+                    window.location.href='/admin/homeworkQuestion/list/'+param.testPaperId;
+                } else {
+                    tale.alertError(result.msg || 'operation failed');
+                }
+            }
+        });
+    }
+
+
+
+
+    function testType(type) {
+        if (type=='single choice'){
+            $('.Singlechoice').show();
+        }else if(type=='brief answer'){
+            $('.Singlechoice').hide();
+        }
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

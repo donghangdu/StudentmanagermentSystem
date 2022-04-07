@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.TContentsMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.TContents">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="titlePic" jdbcType="VARCHAR" property="titlepic" />
+    <result column="slug" jdbcType="VARCHAR" property="slug" />
+    <result column="created" jdbcType="INTEGER" property="created" />
+    <result column="modified" jdbcType="INTEGER" property="modified" />
+    <result column="authorId" jdbcType="INTEGER" property="authorid" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="categories" jdbcType="VARCHAR" property="categories" />
+    <result column="hits" jdbcType="INTEGER" property="hits" />
+    <result column="commentsNum" jdbcType="INTEGER" property="commentsnum" />
+    <result column="allowComment" jdbcType="BIT" property="allowcomment" />
+    <result column="allowPing" jdbcType="BIT" property="allowping" />
+    <result column="allowFeed" jdbcType="BIT" property="allowfeed" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+</mapper>

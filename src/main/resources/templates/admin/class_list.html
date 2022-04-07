@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="grade='Class management',active='class'">
+<header th:replace="admin/fragments/header::headerFragment(${grade},${active})"></header>
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+
+<style>
+    .table>tbody>tr>td {
+        padding: 8px;
+        line-height: 1.42857143;
+        margin: 0 auto;
+        vertical-align:middle;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+    .table>thead:first-child>tr:first-child>th{
+        text-align: center;
+    }
+
+</style>
+
+
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div  th:if="${isTeacher==0}" class="row" >
+                    <div class="col-sm-12">
+                        <h4 class="page-grade">New Group</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form id="cform" action="/admin/class/add" method="post" class="form-inline" role="form" enctype="multipart/form-data">
+                                    <div class="form-group" >
+                                        <div style="margin-top:5px;display: inline-block;vertical-align: middle; ">Select Tutor‘s Photo:</div>
+                                       <!-- <input type="file" class="form-control" name="file" id="file"/>-->
+                                        <input type="file" class="form-control" id="file" name="file" style="display:none" onchange="changeAgentContent()" />
+                                        <input type="hidden" value="" name="file" disabled id="inputFileAgent" />
+                                        <input type="button" name="file" onclick="document.getElementById('file').click()" value="Browse..." />
+
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="classname" placeholder="Please enter Group Name"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="comment" placeholder="Please enter the description of this group"/>
+                                    </div>
+                                    <button id="save-category-btn" type="submit" class="btn btn-success waves-effect waves-light m-l-10">Save
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-grade">Students Groups Management</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Group's Photo</th>
+                                <th>Assigned Group</th>
+<!--                                <th>grade</th>-->
+                                <th>Description of the group</th>
+<!--                                <th>status</th>-->
+                                <th>Operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="post : ${tClasses.list}">
+                                    <tr th:id="${post.id}">
+                                        <td >
+                                            <img width="50px" class="img-circle" th:href="@{'/admin/article/'+${post.id}}" th:src="@{'/admin'+${post.headimage}}"/>
+                                        </td>
+                                        <td>
+                                            <th:block  th:text="${post.classname}"/>
+                                        </td>
+<!--                                        <td style="margin-top: 10px">-->
+<!--                                            <th:block th:text="${post.grade}"/>-->
+<!--                                        </td>-->
+
+                                        <td><th:block th:text="${post.comment}"/></td>
+<!--                                        <td>-->
+<!--                                            <th:block th:if="${post.status == '1'}">-->
+<!--                                                <span class="label label-success">有效</span>-->
+<!--                                            </th:block>-->
+<!--                                           <th:block th:if="${post.status == '0'}">-->
+<!--                                               <span class="label label-default">无效</span>-->
+<!--                                           </th:block>-->
+<!--                                        </td>-->
+                                        <td>
+                                            <a th:if="${isTeacher==0}" th:href="@{'/admin/class/edit?id='+${post.id}}" class="btn btn-primary btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-edit"></i> <span>edit</span>
+                                            </a>
+                                            <a th:if="${isTeacher==0}" href="javascript:void(0)" th:onclick="'delPost('+${post.id}+');'" class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-trash-o"></i> <span>delete</span>
+                                            </a>
+                                            <a  href="javascript:void(0)" th:onclick="'showAllStudent('+${post.id}+');'" class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-table"></i> <span>show all student</span>
+                                            </a>
+<!--                                            <a class="btn btn-warning btn-sm waves-effect waves-light m-b-5" th:href="${post.status=='post' ? commons.blogPermalink(post.id) : commons.photoPermalink(post.id)}" target="_blank">-->
+<!--                                                <i class="fa fa-rocket"></i> <span>preview</span>-->
+<!--                                            </a>-->
+                                        </td>
+                                    </tr>
+                                </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav(${tClasses})"></div>
+                    </div>
+                </div>
+
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script type="text/javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure to delete this class?',
+            then: function () {
+                tale.post({
+                    url : '/admin/class/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Class deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Class deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+<script type="text/javascript">
+    function changeAgentContent(){
+        document.getElementById("inputFileAgent").value = document.getElementById("inputFile").value;
+    }
+    layui.use('layer', function(){
+        var layer = layui.layer;
+    });
+    function showAllStudent(id) {
+        var index = layer.open({
+            type: 2,
+            title : 'Show All Student',
+            content : "/admin/class/showAllStudent?id="+id,
+            area : [ '80%', '90%' ],
+            maxmin : true,
+            resize : false,
+            shade:0,
+            success : function(layer_obj, index) {
+            },
+            end : function() {
+            }
+        });
+    }
+</script>
+<script>
+
+</script>
+</body>
+</html>

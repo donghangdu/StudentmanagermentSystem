@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="headerFragment(title,active)">
+    <meta charset="utf-8"/>
+    <title><th:block th:text="${title!=null?title:'Blog backstage'}+'- Kyrie Blog'"></th:block></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta content="Coderthemes" name="author"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <link rel="shortcut icon" th:href="@{/admin/images/favicon.png}"/>
+    <link th:href="@{//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link th:href="@{/admin/css/style.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{//cdn.bootcss.com/limonte-sweetalert2/6.4.1/sweetalert2.min.css}" rel="stylesheet"/>
+    <style>
+        .username {
+            color: #333;
+            font-size: 15px;
+        }
+        .profile .username:hover {
+            color: rgb(45, 140, 240);
+        }
+    </style>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<div th:fragment="header-body">
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="text-center p-t-10" style="margin: 0 auto;">
+            <div class="pull-left" style="padding-left: 10px;">
+                <a th:href="@{/admin/index}">
+                    <img th:src="@{/admin/images/kyrie.png}" width="50" height="50"/>
+                </a>
+            </div>
+
+            <div class="pull-left" style="padding-left: 4px;">
+                  <span style="font-size: 15px; color: #2f353f; line-height: 50px;">E-learning system</span>
+            </div>
+        </div>
+    </div>
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="">
+                <div class="pull-left">
+                    <button type="button" class="button-menu-mobile open-left">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <span class="clearfix"></span>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right pull-right">
+                    <li class="dropdown">
+                        <a th:href="@{index.html}" class="dropdown-toggle profile" data-toggle="dropdown" aria-expanded="true">
+                            <img th:src="${commons.gravatar(session.login_user.email)}" alt="user-img" class="img-circle"/>
+                            <span class="username" th:text="${session.login_user.realname}"></span><span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" style="z-index: 999999999999999999;">
+                            <li>
+                                <a th:href="@{${commons.site_url()}}" target="_blank">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>View website
+                                </a>
+                            </li>
+
+                            <li th:if="${session.userType==2}"><a th:href="@{/admin/profile}"><i class="fa fa-sun-o"></i> Personal settings</a></li>
+                            <li><a th:href="@{/admin/logout}"><i class="fa fa-sign-out"></i> cancellation</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="left side-menu"><div class="sidebar-inner slimscrollleft">
+    <div id="sidebar-menu">
+        <ul>
+
+            <th:block th:if="${session.userType==2}">
+
+                <li>
+                    <a th:href="@{/admin/user/index(usertype=0)}"
+                       th:class="${active}=='student'?'waves-effect active':'waves-effect'"><i
+                            class="" aria-hidden="true"></i><span> </span></a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/user/index(usertype=0)}"
+                       th:class="${active}=='student'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-user-o" aria-hidden="true"></i><span> Student page management </span></a>
+                </li>
+                <li th:class="${active}=='teacher'?'active':''">
+                    <a th:href="@{/admin/user/index(usertype=1)}"
+                       th:class="${active}=='teacher'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-user" aria-hidden="true"></i><span> Teacher page management </span></a>
+                </li>
+                <li th:class="${active}=='class'?'active':''">
+                    <a th:href="@{/admin/class/index(isTeacher=0)}"
+                       th:class="${active}=='class'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-users" aria-hidden="true"></i><span> Group Management </span></a>
+                </li>
+
+            </th:block >
+            <th:block  th:if="${session.userType==1}">
+                <li th:class="${active}=='start'?'active':''">
+                    <a th:href="@{/admin/start}"
+                       th:class="${active}=='start'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-dashboard" aria-hidden="true"></i><span> To do List </span></a>
+                </li>
+                <li th:class="${active}=='testPaper'?'active':''">
+                    <a th:href="@{/admin/testPaper/list(userid=${session.login_user.userid},classid=${session.login_user.classid})}"
+                       th:class="${active}=='testPaper'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-file-text-o" aria-hidden="true"></i><span> Test management </span></a>
+                </li>
+                <li th:class="${active}=='testPaperStatistical'?'active':''">
+                    <a th:href="@{/admin/testPaper/statisticalList(userid=${session.login_user.userid},classid=${session.login_user.classid})}"
+                       th:class="${active}=='testPaperStatistical'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-file-text-o" aria-hidden="true"></i><span> Test results </span></a>
+                </li>
+                <li th:class="${active}=='homeworkPaper'?'active':''">
+                    <a th:href="@{/admin/homeworkPaper/list(userid=${session.login_user.userid},classid=${session.login_user.classid})}"
+                       th:class="${active}=='homeworkPaper'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-book" aria-hidden="true"></i><span> Mock test management </span></a>
+                </li>
+                <li th:class="${active}=='newHomeworkPaper'?'active':''">
+                    <a th:href="@{/admin/newhomeworkPaper/homeworklist(userid=${session.login_user.userid},classid=${session.login_user.classid})}"
+                       th:class="${active}=='newHomeworkPaper'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-book" aria-hidden="true"></i><span> Paper Assignment Management   </span></a>
+                </li>
+                <li th:class="${active}=='newKnowledgePoint'?'active':''">
+                    <a th:href="@{/admin/newknowledgepoint/knowledgelist(userid=${session.login_user.userid},classid=${session.login_user.classid})}"
+                       th:class="${active}=='newKnowledgePoint'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-book" aria-hidden="true"></i><span> Knowledge Point Management   </span></a>
+                </li>
+                <li th:class="${active}=='class'?'active':''">
+                    <a th:href="@{/admin/class/index(isTeacher=1)}"
+                       th:class="${active}=='class'?'waves-effect active':'waves-effect'"><i
+                            class="fa fa-users" aria-hidden="true"></i><span> Group Management </span></a>
+                </li>
+            </th:block>
+
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+</div></div>
+</div>
+</html>

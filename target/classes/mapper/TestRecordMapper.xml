@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.TestRecordMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.TestRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="test_paper_id" jdbcType="INTEGER" property="testPaperId" />
+    <result column="test_question_id" jdbcType="INTEGER" property="testQuestionId" />
+    <result column="standard_answer" jdbcType="VARCHAR" property="standardAnswer" />
+    <result column="answer" jdbcType="VARCHAR" property="answer" />
+    <result column="creator" jdbcType="INTEGER" property="creator" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+  </resultMap>
+</mapper>

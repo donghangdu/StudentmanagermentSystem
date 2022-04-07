@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Test paper statistics',active='testPaperStatistical'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Examination results overview</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="20%">Test paper name</th>
+                                <th width="5%">Total score</th>
+                                <th width="5%">Total questions</th>
+                                <th width="10%">Total number of people who have been marked</th>
+                                <th width="10%">Average score</th>
+                                <th width="20%">Lowest score</th>
+                                <th width="10%">Highest score</th>
+                                <th>Operation </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="post : ${testPaperList.list}">
+                                    <tr th:cid="${post.id}">
+                                        <td>
+                                            <th:block th:text="${post.name}"/>
+                                        </td>
+                                        <td><th:block th:text="${post.sum_score==null?0:post.sum_score}"/></td>
+                                        <td><th:block th:text="${post.questionCount==null?0:post.questionCount}"/></td>
+                                        <td><th:block th:text="${post.sumpeo==null?0:post.sumpeo}"/></td>
+                                        <td><th:block th:text="${post.avgScore==null?0:post.avgScore}"/></td>
+                                        <td><th:block th:text="${post.minScore==null?0:post.minScore}"/></td>
+                                        <td><th:block th:text="${post.maxScore==null?0:post.maxScore}"/></td>
+                                        <td>
+                                                <a href="javascript:void(0)" th:href="@{'/admin/testCorrectRecords/statisticallist/'+${post.id}}" class="btn btn-info btn-sm waves-effect waves-light m-b-5">
+                                                    <i class="fa fa-eye"></i> <span>View scoreboard</span>
+                                                </a>
+                                        </td>
+                                    </tr>
+                                </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav(${testPaperList})"></div>
+                    </div>
+
+                </div>
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure to delete the test paper?',
+            then: function () {
+                tale.post({
+                    url : '/admin/testPaper/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Test paper deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Failed to delete test paper');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    $('#save-testPaper-btn').click(function () {
+        var name = $('#cform #cname').val();
+        if (name && name != '') {
+            var uid= [[${session.login_user.userid}]];
+            tale.post({
+                url: '/admin/testPaper/add',
+                data: {name: name,uid: uid},
+                success: function (result) {
+                    $('#cform #cname').val('');
+                    if (result && result.code == 'success') {
+                        tale.alertOkAndReload('Test paper added successfully');
+                    } else {
+                        tale.alertError(result.msg || 'Failed to add test paper');
+                    }
+                }
+            });
+        } else {
+            tale.alertError("Test paper name cannot be empty");
+            return false;
+        }
+    });
+    function updateStatus(id) {
+        tale.alertConfirm({
+            title: 'The test paper and the questions under it cannot be edited after it is submitted for use. Are you sure you want to submit it for use?',
+            then: function () {
+                tale.post({
+                    url: '/admin/testPaper/state',
+                    data: {id: id},
+                    success: function (result) {
+                        if (result && result.code == 'success') {
+                            tale.alertOkAndReload('Submitted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Submit successfully failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

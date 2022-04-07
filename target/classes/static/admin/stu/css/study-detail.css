@@ -1,0 +1,24 @@
+#root .box{
+    margin: 30px 10%;
+}
+#root .box .title{
+    font-weight: 700;
+    font-size: 17px;
+    text-align: center;
+}
+#root .box .time{
+    color:#999;
+    margin: 6px 0;
+    text-align: right;
+}
+#root .box .img{
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+}
+#root .box .content{
+    font-size: 15px;
+    text-align: justify;
+    /*text-indent: 2em;*/
+    margin-top: 20px;
+}

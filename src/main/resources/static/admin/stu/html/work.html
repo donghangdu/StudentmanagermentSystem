@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Task</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/work.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <script src="../js/config.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div class="navBox">
+            <div class="nav section">
+                <div class="titleBox">
+                    <p class="title" @click="home()">Home page</p>
+                    <span @click="back()">Back</span>
+                </div>
+                <div>
+                    <span>{{uname}}&emsp;</span>
+                    <span @click="logout()">sign out</span>
+                </div>
+            </div>
+        </div>
+        <section class="section">
+            <ul class="list">
+                <li v-for="(item,index) in list" :key="index" @click="detail(item['Job ID'])">
+                    <div class="liBox">
+                        <div class="dimback" v-show="item['Operation status']=='Job not submitted' && item['Operation time']==null">
+                            <img src="../img/list_img2.png">
+                            <p>Work not Submitted</p>
+                        </div>
+                        <div class="dimback" v-show="item['Operation status']=='Job not submitted'&& item['Operation time']!=null">
+                            <img src="../img/list_img2.png">
+                            <p>Submitted</p>
+                        </div>
+                        <div class="dimback" v-show="item['Operation status']=='Corrected'">
+                            <img src="../img/list_img2.png">
+                            <p>Corrected</p>
+                        </div>
+                        <div class="dimback" v-show="item['Operation status']=='Tested'">
+                            <img src="../img/list_img2.png">
+                            <p>Tested</p>
+                        </div>
+                        <div class="bottom">
+                            <p>{{item['Assignment name']}}</p>
+                            <!-- <p class="time">{{item['Operation time']}}</p> -->
+                        </div>
+                    </div>
+                    <div class="score" v-show="item['Operation status']=='Corrected'">
+                        <p>{{item['Homework score']?item['Homework score']:0}}&nbsp;&nbsp;score&emsp;&emsp;</p>
+                        <p>{{item['Operation time 1']}}</p>
+                    </div>
+                </li>
+            </ul>
+            <el-pagination
+                class="pagination"
+                background
+                :page-size="size"
+                @current-change="handleCurrentChange"
+                layout="prev, pager, next"
+                :total="total">
+            </el-pagination>
+        </section>
+        
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+        var app = new Vue({
+            el:"#root",
+            data:{
+                uname:"",
+                page:1,
+                size:15,
+                userid:'',
+                classid:'',
+                total:0,
+                list:[]
+            },
+            created:function(){
+                var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+                this.userid=paramObj.userid ||'';
+                this.uname=sessionStorage.getItem('uname')||'';
+                this.init();
+            },
+            methods:{
+                home:function(){
+                    window.location.href='./index.html';
+                },
+                back:function(){
+                    window.history.go(-1);
+                },
+                logout:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // head，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:'/admin/logout',
+                        dataType:'json',
+                        type:'GET',
+                        timeout:2000,
+
+                        data:{
+                           
+                        },
+
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            window.location.href=data.data;
+                        },
+
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                init:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // head，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/homeWorkList',
+                        dataType:'json',
+                        type:'POST',
+                        timeout:2000,
+
+                        data:{
+                           uid:that.userid,
+                           pageNum:that.page,
+                           pageSize:that.size
+                        },
+
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            that.total=data.data.total;
+                            that.list=data.data.list;
+                            that.list.forEach(function(e){
+                                var time=e['Operation time'];
+                                e['Operation time 1']=time;
+                                console.log(time.toLocaleString());
+                            })
+                        },
+
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                detail:function(id){
+                    window.location.href='./work-detail.html?id='+id+'&userid='+this.userid;
+                },
+                handleCurrentChange(val) {
+                    this.page=val;
+                    this.init();
+                    console.log(`Current page: ${val}`);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

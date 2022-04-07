@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.HomeworkPaperMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.HomeworkPaper">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="INTEGER" property="creator" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+  </resultMap>
+
+  <select id="selectHomeworkPaperAndUserList" resultType="java.util.Map">
+        select * from homework_paper tp
+        left join test_user tu on tp.creator = tu.userid
+        left join (select test_paper_id,sum(score) sum_score from homework_question group by test_paper_id) tq on tq.test_paper_id = tp.id
+        left join (select test_paper_id,count(id) questionCount from homework_question group by test_paper_id) tqz on tqz.test_paper_id = tp.id
+        where tp.creator=#{userid}
+  </select>
+    <select id="selectHomeworkAndUserHomeWorkRecord" resultType="java.util.Map">
+        select tp.id as 'Job ID',tp.name as 'Assignment name',tps.sum_score as 作业总分,tqz.questionCount as 作业总目数,tq.sum_score 'Homework score',date_format(tcr.create_time,'%Y-%m-%d') as 'Operation time',CASE  WHEN tcr.correct_status is null THEN 'Job not submitted' WHEN tcr.correct_status = 1 then 'Corrected' ELSE 'Submitted' END as 'Operation status' from (select * from homework_paper where state =1 ) tp
+        left  join ( select  * from  homework_correct_records where creator=#{uid}) tcr on tcr.test_paper_id= tp.id
+        left join (select creator,test_paper_id,sum(score) sum_score from homework_record group by test_paper_id,creator) tq on tq.test_paper_id = tcr.test_paper_id and  tq.creator = tcr.creator
+        left join (select test_paper_id,sum(score) sum_score from homework_question group by test_paper_id) tps on tps.test_paper_id = tp.id
+        left join (select test_paper_id,count(id) questionCount from homework_question group by test_paper_id) tqz on tqz.test_paper_id = tp.id
+        left join (select a.classid,a.userid from test_user a ) b on tp.creator=b.userid
+		left join (select e.classid,e.userid from test_user e ) c on c.userid=#{uid}
+		where c.classid=b.classid
+    </select>
+
+</mapper>

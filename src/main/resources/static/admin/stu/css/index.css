@@ -1,0 +1,19 @@
+#root .banner{
+    width:100%;
+}
+#root .use{
+    display: flex;
+    /* flex-wrap: wrap; */
+    justify-content: space-between;
+    margin:20px auto;
+}
+#root .use li{
+    /* width: 25%; */
+    text-align: center;
+    cursor: pointer;
+}
+#root .use li img{
+    width: 100px;
+    height: 100px;
+    margin-bottom: 15px;
+}

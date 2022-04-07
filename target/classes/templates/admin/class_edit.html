@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="grade='Class management',active='class'">
+<header th:replace="admin/fragments/header::headerFragment(${grade},${active})"></header>
+<body class="fixed-left">
+
+<link th:href="@{/admin/plugins/tagsinput/jquery.tagsinput.css}" rel="stylesheet"/>
+<link th:href="@{/admin/plugins/select2.dist.css/select2-bootstrap.css}" rel="stylesheet"/>
+<link th:href="@{/admin/plugins/toggles/toggles.css}" rel="stylesheet"/>
+<link th:href="@{/admin/plugins/md/css/style.css}" rel="stylesheet"/>
+<!-- editor.md -->
+<link th:href="@{/admin/editormd/css/editormd.css}" rel="stylesheet"/>
+<style>
+    .table>tbody>tr>td {
+        padding: 8px;
+        line-height: 1.42857143;
+        margin: 0 auto;
+        vertical-align:middle;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+    .table>thead:first-child>tr:first-child>th{
+        text-align: center;
+    }
+
+</style>
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+<!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+<!--<script src="https://unpkg.com/form-making/dist/FormMaking.umd.js"></script>-->
+
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-grade">Students Groups Management</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div  class="panel panel-color panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">edit class</h3>
+                            </div>
+                            <div class="panel-body">
+                                <form class="form-horizontal" action="/admin/class/edit/save" method="post" role="form" id="global-form" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Group‘s Photo</label>
+                                        <div class="col-md-9">
+                                            <input type="hidden" name="id" th:value="${testClass.id}">
+                                            <img width="50px" style="float: left;" class="img-circle" th:href="@{'/admin/article/'+${testClass.id}}" th:src="${testClass.headimage}"/>
+                                       <!--     <input type="file" style="float: left;width: 50%" class="fView completed job recordsorm-control" name="file" id="file"/>-->
+
+
+                                            <input type="file" id="inputFile" name="inputFile" style="display:none" onchange="changeAgentContent()" />
+                                            <input type="hidden" value="" name="file" disabled id="inputFileAgent" />
+                                            <input type="button" name="file" id="file" onclick="document.getElementById('inputFile').click()" value="Browse..." />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Level</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="grade" placeholder="grade"
+                                                   th:value="${testClass.grade}"   required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Group</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="classname" placeholder="classname"
+                                                   th:value="${testClass.classname}"   required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label">Description of the group</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" name="comment" placeholder="Slogan notes"
+                                                   th:value="${testClass.comment}"   required="required" aria-required="true"/>
+                                        </div>
+                                    </div>
+                                    <input th:value="post" id="multiple-type" type="hidden">
+                                    <div class="form-group" id="comment-div" >
+                                        <label class="col-md-3 control-label">status</label>
+                                        <div class="col-md-9" style="margin-top: 6px">
+                                            <input type="hidden" th:value="${testClass.status!=null?testClass.status:'0'}" name="status" id="status">
+                                            <div th:class="${testClass!=null and testClass.status!=null }?'toggle toggle-success allow-'+${testClass.status=='1'?'true':'false'}:'toggle toggle-success allow-true'"
+                                                 onclick="allow_status('status');"></div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix pull-right">
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light" >
+                                            save
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript">
+    /*<![CDATA[*/
+    function allow_status(id) {
+        id='#'+id;
+        var idValue = $(id).val();
+        if("1"===idValue){
+            $(id).val('0')
+        }else{
+            $(id).val('1')
+        }
+    }
+     function changeAgentContent(){
+        document.getElementById("inputFileAgent").value = document.getElementById("inputFile").value;
+    }
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure to delete this class?',
+            then: function () {
+                tale.post({
+                    url : '/admin/class/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Class deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Class deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+<script th:src="@{/admin/plugins/tagsinput/jquery.tagsinput.min.js}"></script>
+<script th:src="@{/admin/plugins/jquery-multi-select/jquery.quicksearch.js}"></script>
+<!-- editor.md -->
+<script th:src="@{/admin/editormd/src/editormd.js}"></script>
+<script th:src="@{//cdn.bootcss.com/multi-select/0.9.12/js/jquery.multi-select.min.js}"></script>
+<script th:src="@{//cdn.bootcss.com/select2/3.4.8/select2.min.js}"></script>
+<script th:src="@{//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js}"></script>
+<script th:src="@{/admin/js/article.js}"></script>
+<script>
+
+</script>
+</body>
+</html>

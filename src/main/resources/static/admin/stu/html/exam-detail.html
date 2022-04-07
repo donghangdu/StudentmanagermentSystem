@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Online examination</title>
+    <!-- <link rel="stylesheet" href="../js/js.css">
+    <link rel="stylesheet" href="../css/exam-detail.css"> -->
+    <link href="../css/main.css" rel="stylesheet" type="text/css" />
+	<!-- <link href="../css/iconfont.css" rel="stylesheet" type="text/css" /> -->
+	<link href="../css/test.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+	<script src="../js/config.js"></script>
+    <style>
+		.hasBeenAnswer {
+			background: #5d9cec;
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+    <div class="main" id="root">
+		<!--nr start-->
+		<div class="test_main" v-if="objItems.testPaperStatue==3">
+			<div class="nr_left">
+				<div class="test">
+					<form action="" method="post">
+						<div class="test_title">
+							<p class="test_time">
+								<b class="alt-1">{{time}}</b>
+							</p>
+							<font><input type="button" name="test_jiaojuan" value="Submit" @click="save"></font>
+						</div>
+						<div class="test_content">
+							<div class="test_content_title">
+								<h2>Single-choice questions</h2>
+								<p>
+									<span>total</span><i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+										class="content_fs">{{objItems.dSum}}</i>&nbsp;&nbsp;<span>score</span>
+								</p>
+							</div>
+						</div>
+						<div class="test_content_nr">
+							<ul>
+								<li :id="'qu_0_'+index" v-for="(item,index) in objItems.d" :key="index">
+									<div class="test_content_nr_tt">
+										<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+										<font>{{item.name}}</font>
+									</div>
+									<div class="test_content_nr_main">
+										<ul>
+											<li class="option" @click="ansItem(item.id,'a')">
+												<input type="radio" class="radioOrCheck" :name="'answer'+(index+1)"
+													:id="'0_answer_'+(index+1)+'_option_1'" />
+												<label :for="'0_answer_'+(index+1)+'_option_1'">
+													<p class="ue" style="display: inline;">{{item.a}}</p>
+												</label>
+											</li>
+											<li class="option" @click="ansItem(item.id,'b')">
+												<input type="radio" class="radioOrCheck" :name="'answer'+(index+1)"
+													:id="'0_answer_'+(index+1)+'_option_2'" />
+												<label :for="'0_answer_'+(index+1)+'_option_2'">
+													<p class="ue" style="display: inline;">{{item.b}}</p>
+												</label>
+											</li>
+											<li class="option" @click="ansItem(item.id,'c')">
+												<input type="radio" class="radioOrCheck" :name="'answer'+(index+1)"
+													:id="'0_answer_'+(index+1)+'_option_3'" />
+												<label :for="'0_answer_'+(index+1)+'_option_3'">
+													<p class="ue" style="display: inline;">{{item.c}}</p>
+												</label>
+											</li>
+											<li class="option" @click="ansItem(item.id,'d')">
+												<input type="radio" class="radioOrCheck" :name="'answer'+(index+1)"
+													:id="'0_answer_'+(index+1)+'_option_4'" />
+												<label :for="'0_answer_'+(index+1)+'_option_4'">
+													<p class="ue" style="display: inline;">{{item.d}}</p>
+												</label>
+											</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="test_content">
+							<div class="test_content_title">
+								<h2>Essay questions</h2>
+								<p>
+									<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+										class="content_fs">{{objItems.jSum}}</i>&nbsp;&nbsp;<span>score</span>
+								</p>
+							</div>
+						</div>
+						<div class="test_content_nr">
+							<ul>
+								<li :id="'qu_1_'+index" v-for="(item,index) in objItems.j" :key="index">
+									<div class="test_content_nr_tt">
+										<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+										<font>{{item.name}}</font>
+									</div>
+									<div class="test_content_nr_main">
+										<textarea rows="10" placeholder="Please enter your answer" @change="input($event,item.id)"></textarea>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="nr_right">
+				<div class="nr_rt_main">
+					<div class="rt_nr1">
+						<div class="rt_nr1_title">
+							<h1>
+								Answer sheet
+							</h1>
+							<p class="test_time">
+								<b class="alt-1">{{time}}</b>
+							</p>
+						</div>
+						<div class="rt_content">
+							<div class="rt_content_tt">
+								<h2>MCQ</h2>
+								<p>
+									<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question</span>
+								</p>
+							</div>
+							<div class="rt_content_nr answerSheet">
+								<ul>
+									<li v-for="(item,index) in objItems.d" :key="index"><a :href="'#qu_0_'+index" :class="ans[item.serialNum-1].answer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="rt_content">
+							<div class="rt_content_tt">
+								<h2>SAQ</h2>
+								<p>
+									<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question</span>
+								</p>
+							</div>
+							<div class="rt_content_nr answerSheet">
+								<ul>
+									<li v-for="(item,index) in objItems.j" :key="index"><a :href="'#qu_1_'+index" :class="ans[item.serialNum-1].answer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="test_main" v-if="objItems.testPaperStatue==2">
+				<div class="nr_left">
+					<div class="test">
+						<form action="" method="post">
+							<!-- <div class="test_title">
+								<p class="test_time">
+									<b class="alt-1">{{time}}</b>
+								</p>
+								<font><input type="button" name="test_jiaojuan" value="Submit" @click="save"></font>
+							</div> -->
+							<div class="test_content">
+								<div class="test_content_title">
+									<h2>MCQ</h2>
+									<p>
+										<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+											class="content_fs">{{objItems.dSum}}</i>&nbsp;&nbsp;<span>score</span>
+									</p>
+								</div>
+							</div>
+							<div class="test_content_nr">
+								<ul>
+									<li :id="'qu_0_'+index" v-for="(item,index) in objItems.d" :key="index">
+										<div class="test_content_nr_tt">
+											<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+											<font>{{item.name}}</font>
+										</div>
+										<div class="test_content_nr_main">
+											<ul>
+												<li class="option">
+													<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='a'"
+														:id="'0_answer_'+(index+1)+'_option_1'" />
+													<label :for="'0_answer_'+(index+1)+'_option_1'">
+														<p class="ue" style="display: inline;">{{item.a}}</p>
+													</label>
+												</li>
+												<li class="option">
+													<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='b'"
+														:id="'0_answer_'+(index+1)+'_option_2'" />
+													<label :for="'0_answer_'+(index+1)+'_option_2'">
+														<p class="ue" style="display: inline;">{{item.b}}</p>
+													</label>
+												</li>
+												<li class="option">
+													<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='c'"
+														:id="'0_answer_'+(index+1)+'_option_3'" />
+													<label :for="'0_answer_'+(index+1)+'_option_3'">
+														<p class="ue" style="display: inline;">{{item.c}}</p>
+													</label>
+												</li>
+												<li class="option">
+													<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='d'"
+														:id="'0_answer_'+(index+1)+'_option_4'" />
+													<label :for="'0_answer_'+(index+1)+'_option_4'">
+														<p class="ue" style="display: inline;">{{item.d}}</p>
+													</label>
+												</li>
+											</ul>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div class="test_content">
+								<div class="test_content_title">
+									<h2>SAQ</h2>
+									<p>
+										<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+											class="content_fs">{{objItems.jSum}}</i>&nbsp;&nbsp;<span>score</span>
+									</p>
+								</div>
+							</div>
+							<div class="test_content_nr">
+								<ul>
+									<li :id="'qu_1_'+index" v-for="(item,index) in objItems.j" :key="index">
+										<div class="test_content_nr_tt">
+											<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+											<font>{{item.name}}</font>
+										</div>
+										<div class="test_content_nr_main">
+											<textarea rows="10" placeholder="Please enter your answer" disabled  v-model="objItems.uQ[item.serialNum-1].userAnswer"></textarea>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="nr_right">
+					<div class="nr_rt_main">
+						<div class="rt_nr1">
+							<div class="rt_nr1_title">
+								<h1>
+								Answer sheet
+							</h1>
+								<p class="test_time">
+									<!-- <b class="alt-1">{{time}}</b> -->
+								</p>
+							</div>
+							<div class="rt_content">
+								<div class="rt_content_tt">
+									<h2>MCQ</h2>
+									<p>
+										<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question</span>
+									</p>
+								</div>
+								<div class="rt_content_nr answerSheet">
+									<ul>
+										<li v-for="(item,index) in objItems.d" :key="index"><a :href="'#qu_0_'+index" :class="objItems.uQ[item.serialNum-1].userAnswer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+									</ul>
+								</div>
+							</div>
+							<div class="rt_content">
+								<div class="rt_content_tt">
+									<h2>SAQ</h2>
+									<p>
+										<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question</span>
+									</p>
+								</div>
+								<div class="rt_content_nr answerSheet">
+									<ul>
+										<li v-for="(item,index) in objItems.j" :key="index"><a :href="'#qu_1_'+index" :class="objItems.uQ[item.serialNum-1].userAnswer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="test_main" v-if="objItems.testPaperStatue==1">
+					<div class="nr_left">
+						<div class="test">
+							<form action="" method="post">
+								<!-- <div class="test_title">
+									<p class="test_time">
+										<b class="alt-1">{{time}}</b>
+									</p>
+									<font><input type="button" name="test_jiaojuan" value="Submit" @click="save"></font>
+								</div> -->
+								<div class="test_content">
+									<div class="test_content_title">
+										<h2>MCQ</h2>
+										<p>
+											<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+												class="content_fs">{{objItems.dSum}}</i>&nbsp;&nbsp;<span>score</span>
+										</p>
+									</div>
+								</div>
+								<div class="test_content_nr">
+									<ul>
+										<li :id="'qu_0_'+index" v-for="(item,index) in objItems.d" :key="index">
+											<div class="test_content_nr_tt">
+												<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+												<font>{{item.name}}</font>
+											</div>
+											<div class="test_content_nr_main">
+												<ul>
+													<li class="option">
+														<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='a'"
+															:id="'0_answer_'+(index+1)+'_option_1'" />
+														<label :for="'0_answer_'+(index+1)+'_option_1'">
+															<p class="ue" style="display: inline;">{{item.a}}</p>
+														</label>
+													</li>
+													<li class="option">
+														<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='b'"
+															:id="'0_answer_'+(index+1)+'_option_2'" />
+														<label :for="'0_answer_'+(index+1)+'_option_2'">
+															<p class="ue" style="display: inline;">{{item.b}}</p>
+														</label>
+													</li>
+													<li class="option">
+														<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='c'"
+															:id="'0_answer_'+(index+1)+'_option_3'" />
+														<label :for="'0_answer_'+(index+1)+'_option_3'">
+															<p class="ue" style="display: inline;">{{item.c}}</p>
+														</label>
+													</li>
+													<li class="option">
+														<input type="radio" class="radioOrCheck" disabled :name="'answer'+(index+1)" :checked="objItems.uQ[item.serialNum-1].userAnswer=='d'"
+															:id="'0_answer_'+(index+1)+'_option_4'" />
+														<label :for="'0_answer_'+(index+1)+'_option_4'">
+															<p class="ue" style="display: inline;">{{item.d}}</p>
+														</label>
+													</li>
+												</ul>
+												<p style="color:red;margin-top: 5px;">Right answer is ：({{objItems.uQ[item.serialNum-1].answer}})，Score of this question is ({{objItems.uQ[item.serialNum-1].dueScore}})</p>
+											</div>
+										</li>
+									</ul>
+								</div>
+								<div class="test_content">
+									<div class="test_content_title">
+										<h2>SAQ</h2>
+										<p>
+											<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question，</span><span>count</span>&nbsp;&nbsp;<i
+												class="content_fs">{{objItems.jSum}}</i>&nbsp;&nbsp;<span>score</span>
+										</p>
+									</div>
+								</div>
+								<div class="test_content_nr">
+									<ul>
+										<li :id="'qu_1_'+index" v-for="(item,index) in objItems.j" :key="index">
+											<div class="test_content_nr_tt">
+												<i>{{item.serialNum}}</i><span>({{item.score}}score)</span>
+												<font>{{item.name}}</font>
+											</div>
+											<div class="test_content_nr_main">
+												<div style="display: flex;justify-content: space-around;align-items: flex-start;">
+													<div style="width:40%;border:solid 1px #ccc;height:auto;padding:10px">
+														<p style="color:green;text-align: center">Student answers</p>
+														<p>{{objItems.uQ[item.serialNum-1].userAnswer}}</p>
+													</div>
+													<div style="width:40%;border:solid 1px #ccc;height:auto;padding:10px">
+														<p style="color:red;text-align: center;">Standard answer</p>
+														<p>{{objItems.uQ[item.serialNum-1].standard_answer}}</p>
+													</div>
+												</div>
+												<p style="color:red;margin-top: 5px;">Score of this question{{objItems.uQ[item.serialNum-1].tr_score}}</p>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="nr_right">
+						<div class="nr_rt_main">
+							<div class="rt_nr1">
+								<div class="rt_nr1_title">
+									<h1>
+								Answer sheet
+							</h1>
+									<p class="test_time">
+										<!-- <b class="alt-1">{{time}}</b> -->
+									</p>
+								</div>
+								<div class="rt_content">
+									<div class="rt_content_tt">
+										<h2>MCQ</h2>
+										<p>
+											<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.dLength}}</i>&nbsp;&nbsp;<span>question</span>
+										</p>
+									</div>
+									<div class="rt_content_nr answerSheet">
+										<ul>
+											<li v-for="(item,index) in objItems.d" :key="index"><a :href="'#qu_0_'+index" :class="objItems.uQ[item.serialNum-1].userAnswer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+										</ul>
+									</div>
+								</div>
+								<div class="rt_content">
+									<div class="rt_content_tt">
+										<h2>SAQ</h2>
+										<p>
+											<span>total&nbsp;&nbsp;<i class="content_lit">{{objItems.jLength}}</i>&nbsp;&nbsp;<span>question</span>
+										</p>
+									</div>
+									<div class="rt_content_nr answerSheet">
+										<ul>
+											<li v-for="(item,index) in objItems.j" :key="index"><a :href="'#qu_1_'+index" :class="objItems.uQ[item.serialNum-1].userAnswer==''?'':'hasBeenAnswer'">{{item.serialNum}}</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		<!--nr end-->
+		<div class="foot"></div>
+	</div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/jquery.easy-pie-chart.js"></script>
+	<!--time js-->
+	<script src="../js/jquery.countdown.js"></script>
+	<script src="../js/vue.js"></script>
+	<script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+		window.jQuery(function ($) {
+			"use strict";
+			$('time').countDown({
+				with_separators: false
+			});
+			$('.alt-1').countDown({
+				css_class: 'countdown-alt-1'
+			});
+			$('.alt-2').countDown({
+				css_class: 'countdown-alt-2'
+			});
+		});
+		$(function () {
+			$('li.option label').click(function () {
+				// debugger;
+				var examId = $(this).closest('.test_content_nr_main').closest('li').attr('id'); // 得到题目ID
+				var cardLi = $('a[href=#' + examId + ']'); // 根据题目ID找到对应Answer sheet
+				// 设置已答题
+				// if (!cardLi.hasClass('hasBeenAnswer')) {
+				// 	cardLi.addClass('hasBeenAnswer');
+				// }
+			});
+		});
+        var app = new Vue({
+            el:"#root",
+            data:{
+				userid:'',
+                paperid:'',
+				time:'01:40:00',
+				times:6000,
+				jLength:0,
+				dLength:0,
+				objItems:{},
+				ans:[]
+            },
+			created:function(){
+				var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+				this.userid=paramObj.userid;
+                this.paperid=paramObj.id ||'';
+                this.init();
+			},
+            mounted:function(){
+				var that=this;
+				var timer=setInterval(function(){
+					if(that.times>0){
+						that.times--;
+						that.time=that.formData(that.times);
+					}else{
+						//Submit
+						// that.$message('Examinationtime结束，强制Submit');
+						that.save();
+					}
+				},1000)
+            },
+            methods:{
+				formData:function(time){
+					var s=time%60;
+					var m=(time-s)/60%60;
+					var h=((time-s)/60-m)/60;
+					// console.log(h,m,s);
+					var ss=s>9?s:'0'+s;
+					var mm=m>9?m:'0'+m;
+					var hh=h>9?h:'0'+h;
+					return hh+':'+mm+':'+ss;
+				},
+				init:function(){
+					var that=this;
+					$.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+					var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/testPaperDetails',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           uid:that.userid,
+                           testPaperId:that.paperid
+                        },
+                        //请求成功
+                        success:function(data,status){
+							load.close();
+                            console.log(data);
+							that.dLength=data.data.d;
+							that.jLength=data.data.j;
+							that.objItems=data.data;
+							data.data.uQ.forEach(function(e,i){
+								var objs={};
+								objs.testQuestionId=e.id*1;
+								objs.answer='';
+								that.ans.push(objs);
+							})
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+							load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+				},
+                home:function(){
+                    window.open('./index.html');
+                },
+				ansItem:function(id,a){
+					console.log(id,a);
+					this.ans.forEach(function(e,i){
+						if(e.testQuestionId==id){
+							e.answer=a;
+						}
+					})
+				},
+				input(event,id){
+					console.log(event.target.value,id);
+					this.ans.forEach(function(e,i){
+						if(e.testQuestionId==id){
+							e.answer=event.target.value;
+						}
+					})
+				},
+				save:function(){
+					console.log(this.ans);
+					var that=this;
+					var param={
+						uid:that.userid*1,
+						testPaperId:that.paperid*1,
+						list:that.ans
+					}
+					that.$confirm('can not be modified after submission. Just wait for correction. Are you sure to submit? ','prompt', {
+						confirmButtonText: 'determine',
+						cancelButtonText: 'cancel',
+						type: 'warning'
+					}).then(() => {
+						$.ajaxSetup({
+							complete : function(XMLHttpRequest, textStatus) {    
+								// 通过XMLHttpRequest取得响应头，REDIRECT      
+								var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+								if (redirect == "REDIRECT") {  
+									var win = window;      
+									while (win != win.top){    
+										win = win.top;    
+									}  
+									win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+								}  
+							}
+						});
+						var load=that.$loading({ fullscreen: true });
+						$.ajax({
+							url:host+'/api/submitTestPaper',//地址
+							type:'POST',//类型
+							timeout:2000,//超时
+							contentType: 'application/json;charset=UTF-8',
+							//参数
+							data:JSON.stringify(param),
+							//请求成功
+							success:function(data,status){
+								load.close();
+								console.log(data);
+								that.$message({type: 'success',message:'Submitted successfully'});
+								setTimeout(function(){
+									history.go(-1);
+								},2000)
+							},
+							//失败/超时
+							error:function(XMLHttpRequest,textStatus,errorThrown){
+								load.close();
+								if(textStatus==='timeout'){
+									that.$message('Request timed out');
+									setTimeout(function(){
+										that.$message('Re request');
+									},2000);
+								}
+								//alert(errorThrown);
+							}
+						})
+					}).catch(() => {
+						that.$message({
+							type: 'info',
+							message: 'Submission canceled'
+						});          
+					});
+				}
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.TestUserMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.TestUser">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="userid" jdbcType="INTEGER" property="userid" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="userpwd" jdbcType="VARCHAR" property="userpwd" />
+    <result column="usertype" jdbcType="INTEGER" property="usertype" />
+    <result column="userstate" jdbcType="INTEGER" property="userstate" />
+    <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="classid" jdbcType="VARCHAR" property="classid" />
+  </resultMap>
+</mapper>

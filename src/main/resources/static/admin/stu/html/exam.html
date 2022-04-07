@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Examination</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/exam.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <script src="../js/config.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div class="navBox">
+            <div class="nav section">
+                <div class="titleBox">
+                    <p class="title" @click="home()">Home page</p>
+                    <span @click="back()">Back</span>
+                </div>
+                <div>
+                    <span>{{uname}}&emsp;</span>
+                    <span @click="logout()">sign out</span>
+                </div>
+            </div>
+        </div>
+        <section class="section">
+            <ul class="list">
+                <li v-for="(item,index) in list" :key="index" @click="detail(item['testid'])">
+                    <div class="liBox">
+                        <div class="dimback" v-show="item['Testpaperstatus']=='Noexamination' && item['Examinationtime']==null">
+                            <img src="../img/list_img.png">
+                            <p>Work not Submitted</p>
+                        </div>
+                        <div class="dimback" v-show="item['Testpaperstatus']=='Noexamination' && item['Examinationtime']!=null">
+                            <img src="../img/list_img.png">
+                            <p>Submitted</p>
+                        </div>
+                        <div class="dimback" v-show="item['Testpaperstatus']=='Corrected'">
+                            <img src="../img/list_img.png">
+                            <p>Corrected</p>
+                        </div>
+                        <div class="dimback" v-show="item['Testpaperstatus']=='Tested'">
+                            <img src="../img/list_img.png">
+                            <p>Tested</p>
+                        </div>
+                        <div class="bottom">
+                            <p>{{item['Nameoftestpaper']}}</p>
+                            <!-- <p class="time">{{item['Operation time']}}</p> -->
+                        </div>
+                    </div>
+                    <div class="score" v-show="item['Testpaperstatus']=='Corrected'||item['Testpaperstatus']=='Tested'">
+                        <p v-show="item['Testpaperstatus']=='Corrected'">{{item['Testscores']?item['Testscores']:0}}&nbsp;&nbsp;score</p>
+                        <p>{{item['Examinationtime1']}}</p>
+                    </div>
+                </li>
+            </ul>
+            <el-pagination
+                class="pagination"
+                background
+                :page-size="size"
+                @current-change="handleCurrentChange"
+                layout="prev, pager, next"
+                :total="total">
+            </el-pagination>
+        </section> 
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+        var app = new Vue({
+            el:"#root",
+            data:{
+                uname:"",
+                page:1,
+                size:15,
+                userid:'',
+                total:0,
+                list:[]
+            },
+            created:function(){
+                var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+                this.userid=paramObj.userid ||'';
+                this.uname=sessionStorage.getItem('uname')||'';
+                this.init();
+            },
+            methods:{
+                home:function(){
+                    window.location.href='./index.html';
+                },
+                back:function(){
+                    window.history.go(-1);
+                },
+                logout:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:'/admin/logout',//地址
+                        dataType:'json',//数据类型
+                        type:'GET',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            window.location.href=data.data;
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                init:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/testPaperList',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           uid:that.userid,
+                           pageNum:that.page,
+                           pageSize:that.size
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            that.total=data.data.total;
+                            that.list=data.data.list;
+                            that.list.forEach(function(e){
+                                var time=e['Examinationtime'];
+                                e['Examinationtime1']=time;
+                                console.log(time.toLocaleString());
+                            })
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                detail:function(id){
+                    window.location.href='./exam-detail.html?id='+id+'&userid='+this.userid;
+                },
+                handleCurrentChange(val) {
+                    this.page=val;
+                    this.init();
+                    console.log(`Current page: ${val}`);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

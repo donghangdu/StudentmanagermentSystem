@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wip.dao.RelationShipDao">
+    <!--table name-->
+    <sql id="BASE_TABLE">
+        t_relationships
+    </sql>
+
+    <!--base column-->
+    <sql id="BASE_COLUMN">
+        rs.cid, rs.mid
+    </sql>
+
+    <!--According to the meta number to obtain the corresponding label or classification-->
+    <select id="getRelationShipByMid" resultType="com.wip.model.RelationShipDomain">
+        SELECT
+          <include refid="BASE_COLUMN"/>
+        FROM
+          <include refid="BASE_TABLE"/> AS rs
+        WHERE
+          mid = #{mid, jdbcType=INTEGER}
+    </select>
+
+
+
+    <!--Delete all records of meta-->
+    <delete id="deleteRelationShipByMid">
+        DELETE FROM
+          <include refid="BASE_TABLE"/>
+        WHERE
+          mid = #{mid, jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteRelationShipByCid">
+        DELETE FROM
+          <include refid="BASE_TABLE"/>
+        WHERE
+          cid = #{cid, jdbcType=INTEGER}
+    </delete>
+
+    <!--Find quantity-->
+    <select id="getCountById" resultType="java.lang.Long">
+        SELECT
+          COUNT(*)
+        FROM
+          <include refid="BASE_TABLE"/>
+        WHERE
+          cid = #{cid, jdbcType=INTEGER}
+        AND
+          mid = #{mid, jdbcType=INTEGER}
+    </select>
+
+    <!--add-->
+    <insert id="addRelationShip" parameterType="com.wip.model.RelationShipDomain">
+        INSERT INTO
+          <include refid="BASE_TABLE"/>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            cid, mid,
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            #{cid, jdbcType=INTEGER},
+            #{mid, jdbcType=INTEGER}
+        </trim>
+    </insert>
+
+    <!--Get the corresponding label or classification according to the article ID-->
+    <select id="getRelationShipByCid" resultType="com.wip.model.RelationShipDomain">
+        SELECT
+          <include refid="BASE_COLUMN"/>
+        FROM
+          <include refid="BASE_TABLE"/> AS rs
+        WHERE
+          cid = #{cid, jdbcType=INTEGER}
+    </select>
+
+</mapper>

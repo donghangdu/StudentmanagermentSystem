@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newKnowledgePoint'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">New Knowledge Point </h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form id="cform" class="form-inline" role="form">
+                                    <input type="hidden" id="mid"/>
+                                    <a id="save-addKnowledge-btn" href="#" class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                        <i class="fa fa-plus"></i> <span>Add</span>
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="15%">Title</th>
+                                <th width="10%">Created time</th>
+                                <th width="15%">Tags</th>
+                                <th width="5%">Author Name</th>
+                                <th width="5%">Author Class</th>
+                                <th width="20%">Operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:each="post : ${newKnowledgePointList.list}">
+                                <tr th:cid="${post.cid}">
+                                    <td>
+                                        <th:block th:text="${post.title}"/>
+                                    </td>
+                                    <td><th:block th:text="${post.createdtime}"/></td>
+                                    <td><th:block th:text="${post.tags}"/></td>
+                                    <td><th:block th:text="${post.authorname}"/></td>
+                                    <td><th:block th:text="${post.classname}"/></td>
+                                    <td>
+                                        <th:block>
+                                            <a href="javascript:;" th:onclick="'openCorrect('+${post.cid}+')'" class="btn btn-primary btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-edit"></i> <span>Correction</span>
+                                            </a>
+                                            <a href="javascript:void(0)" th:onclick="'delPost('+${post.cid}+')'" class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-trash-o"></i> <span>delete</span>
+                                            </a>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                            </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav4(${newKnowledgePointList},${userid},${classid})"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Do you want to delete the title?',
+            then: function () {
+                tale.post({
+                    url : '/admin/newknowledgepoint/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Title deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Title deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    layui.use('layer', function(){
+        var layer = layui.layer;
+    });
+    $('#save-addKnowledge-btn').click(function () {
+        var uid= [[${session.login_user.userid}]];
+        var classid= [[${session.login_user.classid}]];
+        var index = layer.open({
+            type : 2,
+            title : 'addnewKnowledge',
+            content : "/admin/newknowledgepoint/addnewknowledgepointpage?userid="+uid+"&classid="+classid ,
+            area : [ '80%', '90%' ],
+            maxmin : true,
+            resize : false,
+            shade:0,
+            success : function(layer_obj, index) {
+            },
+            end : function() {
+                window.location.reload();
+            }
+        });
+    });
+   function openCorrect(id) {
+        var index = layer.open({
+            type : 2,
+            title : 'addnewKnowledge',
+            content : "/admin/newknowledgepoint/editnewknowledgepointpage?id="+id ,
+            area : [ '80%', '90%' ],
+            maxmin : true,
+            resize : false,
+            shade:0,
+            success : function(layer_obj, index) {
+            },
+            end : function() {
+                window.location.reload();
+            }
+        });
+    };
+</script>
+</body>
+</html>

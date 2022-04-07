@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Paper management',active='testPaper'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Test paper management</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form id="cform" class="form-inline" role="form">
+                                    <input type="hidden" id="mid"/>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="cname" placeholder="Please enter the name of the test paper"/>
+                                    </div>
+                                    <a id="save-testPaper-btn" href="#" class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                        <i class="fa fa-plus"></i> <span>Add test paper</span>
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="20%">Test Name</th>
+                                <th width="5%">Total score</th>
+                                <th width="5%">Number of questions</th>
+                                <th width="10%">CREATED BY</th>
+                                <th width="20%">Create Time</th>
+                                <th width="10%">Active State</th>
+                                <th>Operation (Only when there are questions in the test paper can they be submitted and used)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="post : ${testPaperList.list}">
+                                    <tr th:cid="${post.id}">
+                                        <td>
+                                            <th:block th:text="${post.name}"/>
+                                        </td>
+                                        <td><th:block th:text="${post.sum_score==null?0:post.sum_score}"/></td>
+                                        <td><th:block th:text="${post.questionCount==null?0:post.questionCount}"/></td>
+                                        <td><th:block th:text="${post.realname}"/></td>
+                                        <td><th:block th:text="${commons.fmtdate2(post.create_time, 'yyyy-MM-dd HH:mm:ss')}"/></td>
+                                        <td>
+                                            <th:block th:if="${post.state == 1}">
+                                                <span class="label label-success">Submitted and in use</span>
+                                            </th:block>
+                                            <th:block th:if="${post.state == 2}">
+                                                <span class="label label-default">Not submitted</span>
+                                            </th:block>
+                                        </td>
+                                        <td>
+                                            <th:block th:if="${post.state == 2 &&post.questionCount>0}">
+                                                <a href="javascript:void(0)" th:onclick="'updateStatus('+${post.id}+');'"
+                                                   class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                                    <i class="fa fa-check-square-o"></i>
+                                                    <span>Submitted and in use</span>
+                                                </a>
+                                            </th:block>
+                                            <a th:href="@{'/admin/testQuestion/list/'+${post.id}}" class="btn btn-primary btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-edit"></i> <span>Question management</span>
+                                            </a>
+                                            <th:block th:if="${post.state == 2}">
+                                                <a href="javascript:void(0)" th:onclick="'delPost('+${post.id}+');'" class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                                    <i class="fa fa-trash-o"></i> <span>Delete</span>
+                                                </a>
+                                            </th:block>
+                                            <th:block th:if="${post.questionCount>0}">
+                                            <a class="btn btn-warning btn-sm waves-effect waves-light m-b-5" th:href="@{'/admin/testPaper/preview?testPaperId='+${post.id}}" target="_blank">
+                                                <i class="fa fa-rocket"></i> <span>preview</span>
+                                            </a>
+                                            </th:block>
+                                            <th:block th:if="${post.state == 1 &&post.questionCount>0}">
+                                                <a href="javascript:void(0)" th:href="@{'/admin/testCorrectRecords/list/'+${post.id}}" class="btn btn-info btn-sm waves-effect waves-light m-b-5">
+                                                    <i class="fa fa-eye"></i> <span>View test records</span>
+                                                </a>
+                                            </th:block>
+                                        </td>
+                                    </tr>
+                                </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav(${testPaperList})"></div>
+                    </div>
+
+                </div>
+                <div th:replace="admin/fragments/footer :: footer-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure to delete the test paper?',
+            then: function () {
+                tale.post({
+                    url : '/admin/testPaper/delete',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Test Delete Success');
+                        } else {
+                            tale.alertError(result.msg || 'Test Delete Fail');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    $('#save-testPaper-btn').click(function () {
+        var name = $('#cform #cname').val();
+        if (name && name != '') {
+            var uid= [[${session.login_user.userid}]];
+            tale.post({
+                url: '/admin/testPaper/add',
+                data: {name: name,uid: uid},
+                success: function (result) {
+                    $('#cform #cname').val('');
+                    if (result && result.code == 'success') {
+                        tale.alertOkAndReload('Test Add Success');
+                    } else {
+                        tale.alertError(result.msg || 'Test Add Success');
+                    }
+                }
+            });
+        } else {
+            tale.alertError("Test Name Not be Empty");
+            return false;
+        }
+    });
+    function updateStatus(id) {
+        tale.alertConfirm({
+            title: 'The test paper and the questions under it cannot be edited after it is submitted for use. Are you sure you want to submit it for use?',
+            then: function () {
+                tale.post({
+                    url: '/admin/testPaper/state',
+                    data: {id: id},
+                    success: function (result) {
+                        if (result && result.code == 'success') {
+                            tale.alertOkAndReload('Submitted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Submitted fail');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

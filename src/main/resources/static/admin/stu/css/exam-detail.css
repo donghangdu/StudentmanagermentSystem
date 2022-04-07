@@ -1,0 +1,38 @@
+#root .box{
+    margin: 30px 10%;
+}
+#root .box .title{
+    font-weight: 700;
+    font-size: 17px;
+    text-align: center;
+}
+#root .box .timeb{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color:#999;
+    margin: 10px 0;
+}
+#root .box .content{
+    width: 100%;
+} 
+#root .box .content .radio ul,#root .box .content .short textarea{
+    margin-left: 10px;
+}  
+#root .box .lis{
+    margin-bottom: 15px;
+}
+#root .box .lis .titl{
+    margin-bottom: 8px;
+}
+#root .btn{
+    display: block;
+    width: 50%;
+    margin: 40px auto;
+    background-color: #2e84f5;
+    color: #fff;
+    border-radius: 5px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+}

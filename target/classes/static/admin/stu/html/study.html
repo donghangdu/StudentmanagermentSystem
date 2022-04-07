@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Study</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/study.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <script src="../js/config.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div class="navBox">
+            <div class="nav section">
+                <div class="titleBox">
+                    <p class="title" @click="home()">Home Page</p>
+                    <span @click="back()">Back</span>
+                </div>
+                <div>
+                    <span>{{uname}}&emsp;</span>
+                    <span @click="logout()">sign out</span>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <el-row style="margin-top: 20px;">
+            <el-col :span="6" :offset="18">
+        <div class="search"  >
+            <el-form  @submit.native.prevent :inline="true"  :model="searchParams" class="demo-form-inline">
+                <el-form-item>
+                    <el-input v-model="searchParams.searchVal" @blur="submitSearch()" @keyup.enter.native="submitSearch()" v-bind:value="searchParams.searchVal" style="width: 240px;" placeholder="Please input knowledge points" clearable></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button class="search-btn el-button--infoSearch" icon="el-icon-search" @click="submitSearch()"></el-button>
+                </el-form-item>
+            </el-form>
+
+        </div>
+            </el-col>
+        </el-row>
+
+
+        <section class="section">
+            <el-timeline class="list" :reverse="true">
+                <el-timeline-item :timestamp="item.time" placement="top"  v-for="(item,index) in list" :key="index">
+                    <el-card>
+                        <div @click="detail(item.cid)">
+                            <h4>{{item.title}}</h4>
+                            <p class="cont" v-html="item.content"></p>
+                        </div>
+                    </el-card>
+                </el-timeline-item>
+            </el-timeline>
+            <el-pagination
+                class="pagination"
+                background
+                :page-size="size"
+                @current-change="handleCurrentChange"
+                layout="prev, pager, next"
+                :total="total">
+            </el-pagination>
+        </section>
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+        var app = new Vue({
+            el:"#root",
+            data:{
+                uname:"",
+                page:1,
+                size:15,
+                userid:'',
+                list:[],
+                total:0,
+                searchParams: {
+                    searchVal: '',
+                }
+            },
+            created:function(){
+                var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+                this.userid=paramObj.userid ||'';
+                this.uname=sessionStorage.getItem('uname')||'';
+                this.init();
+            },
+            methods:{
+                home:function(){
+                    window.location.href='./index.html';
+                },
+                back:function(){
+                    window.history.go(-1);
+                },
+                logout:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向
+                            if (redirect == "REDIRECT") {
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:'/admin/logout',//地址
+                        dataType:'json',//数据类型
+                        type:'GET',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            window.location.href=data.data;
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                init(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/content',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                            page:that.page,
+                           limit:that.size,
+                           userid:that.userid,
+                            search:that.searchParams.searchVal
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            that.total=data.data.total;
+                            that.list=data.data.list;
+                            that.list.forEach(function(e){
+                                var time=new Date(e.created*1000);
+                                e.time=time.toLocaleDateString();
+                                console.log(e.time);
+                                console.log(new Date().getTime());
+                            })
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    }) 
+                },
+                detail:function(id){
+                    window.location.href='./study-detail.html?id='+id+'&userid='+this.userid;
+                },
+                handleCurrentChange(val) {
+                    this.page=val;
+                    this.init();
+                },
+                submitSearch () {
+                    var that=this;
+                    $.ajax({
+                        url:host+'/api/content',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                            page:that.page,
+                            limit:that.size,
+                            userid:that.userid,
+                            search:that.searchParams.searchVal
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            console.log(data);
+                            that.total=data.data.total;
+                            that.list=data.data.list;
+                            that.list.forEach(function(e){
+                                var time=new Date(e.created*1000);
+                                e.time=time.toLocaleDateString();
+                                console.log(e.time);
+                                console.log(new Date().getTime());
+                            })
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+            }
+        })
+    </script>
+</body>
+</html>

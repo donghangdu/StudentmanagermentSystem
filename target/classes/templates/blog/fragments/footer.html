@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer id="footer" class="footer" th:fragment="footer(record)">
+    <div class="footer-inner">
+        <div class="copyright">
+            © 2017 - <span>2018</span> <span class="with-love">
+                <i class="fa fa-heart"></i></span> <span class="author">Kyrie</span>
+        </div>
+
+        <div class="powered-by">
+            from - <a class="theme-link" target="_blank" href="https://hexo.io/">hexo</a> drive
+        </div>
+
+        <div class="theme-info">
+            Source code - <a class="theme-link" target="_blank" href="https://github.com/caozongpeng/SpringBootBlog"> Kyrie's Blog </a>
+        </div>
+        <div>
+            <th:block th:if="${record != null and record != ''}">
+                <a th:text="${record}" th:href="@{http://www.miitbeian.gov.cn/}"></a>
+            </th:block>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

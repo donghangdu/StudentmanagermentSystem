@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newHomeworkPaper'">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">id</label>
+        <div class="layui-input-block" id = "iddiv">
+            <input type="text" name="id" id = "id" required  lay-verify="required"  autocomplete="off" class="layui-input" readonly>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Workname</label>
+        <div class="layui-input-block">
+            <input type="text" name="workname" required   autocomplete="off" class="layui-input" id="workname">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Classname</label>
+        <div class="layui-input-block">
+            <select name="class" id="class">
+                <option value="">Choose a class</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Teacher</label>
+        <div class="layui-input-block">
+            <select name="teacher" lay-verify="required" id = "teacher">
+                <option value="">Choose a teacher</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Time</label>
+        <div class="layui-inline">
+            <input type="text" lay-verify="required" class="layui-input" id="time">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Status</label>
+        <div class="layui-input-block">
+            <input type="checkbox" id="status" name="switch" lay-skin="switch">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">Workcontent</label>
+        <div class="layui-input-block">
+            <textarea id="content" name="content" lay-verify="required" placeholder="Please input the content..." class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <table class="layui-table">
+        <colgroup>
+            <col width="100">
+            <col width="50">
+            <col width="10">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>filename</th>
+            <th>filetype</th>
+            <th>operation</th>
+        </tr>
+        </thead>
+        <tbody id="filebody">
+        </tbody>
+    </table>
+    <div class="layui-form-item layui-form-text" id ="uploadDiv">
+        <label class="layui-form-label">Upload</label>
+        <button type="button" class="layui-btn" id="uploadhomework"><i class="layui-icon">&#xe67c;</i>Uploadhomework</button>
+        <button type="button" class="layui-btn" id="test9">Upload</button>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">Submit</button>
+            <button type="reset" class="layui-btn layui-btn-primary">Reset</button>
+        </div>
+    </div>
+</form>
+<script  src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script>
+    var id = getQueryString("id");
+    layui.use('form', function(){
+        var form = layui.form;
+    });
+    $(function () {
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#time' //指定元素
+                ,type: 'datetime'
+                ,lang: 'en'
+            });
+        });
+        $.ajax({
+            url:"/admin/newhomeworkPaper/queryClassAndTeacherInfo",
+            type:"post",
+            async:false,
+            data:{},
+            success:function(res){
+                var testclass = res.data.testclass;
+                var testuser = res.data.testuser;
+                var classhtml="";
+                for(var i =0;i<testclass.length;i++){
+                    classhtml+='"<option value="'+testclass[i].id+'">'+testclass[i].classname+'</option>"';
+                }
+                $("#class").append(classhtml);
+                var userhtml="";
+                for(var i =0;i<testuser.length;i++){
+                    if(testuser[i].usertype=="1"){
+                        userhtml+='"<option value="'+testuser[i].userid+'">'+testuser[i].realname+'</option>"';
+                    }
+                }
+                $("#teacher").append(userhtml);
+            },
+            error:function(e){
+            }
+        });
+        $.ajax({
+            url:"/admin/newhomeworkPaper/queryNewWorkInfo",
+            type:"post",
+            async:false,
+            data:{
+                id:id
+            },
+            success:function(res){
+                $("#id").val(res.data.id);
+                $("#teacher").val(res.data.authorid);
+                $("#class").val(res.data.classid);
+                $("#content").val(res.data.content);
+                if(res.data.status=="on"){
+                    $("#status").attr("checked",true);
+                    $("#uploadDiv").hide();
+                }
+                $("#time").val(res.data.time);
+                $("#workname").val(res.data.workname);
+                var filetype = substr(res.data.filename)
+                var html="";
+                html+='"<td>'+res.data.filename+'</td>"';
+                html+='"<td>'+filetype+'</td>"';
+                html+='"<td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete" onclick="downloadfile(\''+res.data.id+'\')">download</button></td>"';
+                $("#filebody").append(html);
+            },
+            error:function(e){
+            }
+        });
+    });
+        function getQueryString(name){
+            var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if(r!=null)return  unescape(r[2]); return null;
+        }
+    function substr(fileName) {
+        var first = fileName.lastIndexOf(".");//取到文件名开始到最后一个点的长度
+        var namelength = fileName.length;//取到文件名长度
+        var filesuffix = fileName.substring(first + 1, namelength );//截取获得后缀名
+        return filesuffix;
+    }
+    function downloadfile(id) {
+        var a = document.createElement('a');
+        a.setAttribute('download','file.txt');
+        a.setAttribute('href', 'http://localhost:8888/admin/newhomeworkPaper/downloadFile?id='+id);
+        document.body.appendChild(a);
+        a.click();
+    }
+    layui.use('form', function(){
+        var form = layui.form;
+        form.on('submit(formDemo)', function(data){
+            var workname = data.field.workname;
+            var id =$("#id").val();
+            var classid = data.field.class;
+            var classname = $("#class option:selected").text();
+            var content = data.field.content;
+            var authorid = data.field.teacher;
+            var authorname = $("#teacher option:selected").text();
+            var status = data.field.switch;
+            var time = $("#time").val();
+            if(status=='on'){
+                layer.msg("The assignment is now in operation.Cannot submit!",{icon:2},{time:2000});
+                return false;
+            }
+            var data={
+                id:id
+                ,workname:workname
+                ,classid:classid
+                ,classname:classname
+                ,content:content
+                ,authorid:authorid
+                ,authorname:authorname
+                ,status:status
+                ,time:time
+            }
+            $.ajax({
+                url:"/admin/newhomeworkPaper/saveNewworkInfo",
+                type:"post",
+                data:data,
+                success:function(res){
+                    if (res.code == 'success') {
+                        layer.msg('Saved successfully！', {icon: 1});
+                    }
+                },
+                error:function(e){
+                    return false;
+                }
+            });
+            parent.layer.closeAll();
+            return true;
+        });
+    });
+    layui.use('upload', function(){
+        var upload = layui.upload;
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#uploadhomework' //绑定元素
+            ,url: '/admin/newhomeworkPaper/upload/' //上传接口
+            ,accept: 'file'
+            ,data:{
+                id:id
+            }
+            ,auto: false
+            //,multiple: true
+            ,bindAction: '#test9'
+            ,done: function(res){
+                $.ajax({
+                    url:"/admin/newhomeworkPaper/queryNewWorkInfo",
+                    type:"post",
+                    async:false,
+                    data:{
+                        id:id
+                    },
+                    success:function(res){
+                        var filetype = substr(res.data.filename)
+                        var html="";
+                        html+='"<td>'+res.data.filename+'</td>"';
+                        html+='"<td>'+filetype+'</td>"';
+                        $("#filebody").append(html);
+                    },
+                    error:function(e){
+                    }
+                });
+                layer.msg('upload succeed');
+            }
+        });
+    });
+</script>
+</body>
+</html>

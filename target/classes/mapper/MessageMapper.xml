@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.MessageMapper">
+    <resultMap id="BaseResultMap" type="com.wip.model.MessageClass">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="time" jdbcType="TIMESTAMP" property="time" />
+        <result column="userid" jdbcType="VARCHAR" property="userid" />
+        <result column="parentid" jdbcType="VARCHAR" property="parentid" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="classid" jdbcType="INTEGER" property="classid" />
+    </resultMap>
+
+    <select id="selectMessageByClassid" parameterType="com.wip.utils.Page" resultType="java.util.Map">
+        select tp.id,tp.content,date_format(tp.time,   '%Y-%m-%d') as time,tp.userid,tp.parentid,tp.username,tp.classid,tp.replyid,tp.replyname from test_message tp
+        where tp.classid =#{params.classid}  and tp.parentid is null limit #{index},#{pageSize}
+    </select>
+    <select id="selectMessageByClassidCount" parameterType="com.wip.utils.Page" resultType="java.lang.Integer">
+        select count(*)  from test_message tp
+        where tp.classid =#{params.classid} and tp.parentid is null
+    </select>
+    <select id="selectReplyByClassid"  resultType="java.util.Map">
+        select tp.id,tp.content,date_format(tp.time,   '%Y-%m-%d') as time,tp.userid,tp.parentid,tp.username,tp.classid,tp.replyid,tp.replyname from test_message tp
+        where tp.classid =#{classid, jdbcType=INTEGER} and tp.parentid is not null
+    </select>
+</mapper>

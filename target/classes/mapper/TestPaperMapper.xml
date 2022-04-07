@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.TestPaperMapper">
+  <resultMap id="BaseResultMap" type="com.wip.model.TestPaper">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="INTEGER" property="creator" />
+  </resultMap>
+
+  <select id="selectTestPaperAndUserList" resultType="java.util.Map">
+        select * from test_paper tp
+        left join test_user tu on tp.creator = tu.userid
+        left join (select test_paper_id,sum(score) sum_score from test_question group by test_paper_id) tq on tq.test_paper_id = tp.id
+        left join (select test_paper_id,count(id) questionCount from test_question group by test_paper_id) tqz on tqz.test_paper_id = tp.id
+        where tp.creator = #{userid}
+  </select>
+    <select id="selectTestPaperAndUserTestRecord" resultType="java.util.Map">
+        select tp.id as testid,tp.name as Nameoftestpaper,tps.sum_score as Totalscorepaper,tqz.questionCount Totalnumoftest,tq.sum_score Testscores,date_format(tcr.create_time,'%Y-%m-%d') as Examinationtime,CASE  WHEN tcr.correct_status is null THEN 'Noexamination' WHEN tcr.correct_status = 1 then 'Corrected' ELSE 'Tested' END as Testpaperstatus from (select * from test_paper where state =1 ) tp
+        left  join ( select  * from  test_correct_records where creator=#{uid}) tcr on tcr.test_paper_id= tp.id
+        left join (select creator,test_paper_id,sum(score) sum_score from test_record group by test_paper_id,creator) tq on tq.test_paper_id = tcr.test_paper_id and  tq.creator = tcr.creator
+        left join (select test_paper_id,sum(score) sum_score from test_question group by test_paper_id) tps on tps.test_paper_id = tp.id
+        left join (select test_paper_id,count(id) questionCount from test_question group by test_paper_id) tqz on tqz.test_paper_id = tp.id
+        left join (select a.classid,a.userid from test_user a ) b on tp.creator=b.userid
+		left join (select e.classid,e.userid from test_user e ) c on c.userid=#{uid}
+		where c.classid=b.classid
+    </select>
+    <select id="selectTestPaperStatisticalList" resultType="java.util.Map">
+        SELECT * from test_paper tp LEFT JOIN
+        (
+        SELECT tt.test_paper_id,count(tt.id) sumpeo,avg(tt.sum_score) avgScore,max(tt.sum_score) maxScore,min(tt.sum_score) minScore from
+            (
+                select tcr.*,tq.sum_score from test_correct_records tcr
+                left join (select creator,test_paper_id,IFNULL(sum(score),0) sum_score from test_record group by test_paper_id,creator) tq on tq.test_paper_id = tcr.test_paper_id and  tq.creator = tcr.creator
+                where tcr.correct_status = 1
+            ) tt  GROUP BY tt.test_paper_id
+        ) ts on ts.test_paper_id = tp.id
+        left join (select test_paper_id,sum(score) sum_score,count(id) questionCount from test_question group by test_paper_id) tq on tq.test_paper_id = tp.id
+        where tp.state = 1 and tp.creator = #{userid}
+    </select>
+</mapper>

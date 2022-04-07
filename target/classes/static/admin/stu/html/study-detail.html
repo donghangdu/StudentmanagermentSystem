@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>学习详情</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/study-detail.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <script src="../js/config.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div class="navBox">
+            <div class="nav section">
+                <div class="titleBox">
+                    <p class="title" @click="home()">Home page</p>
+                    <span @click="back()">Back</span>
+                </div>
+                <div>
+                    <span>{{uname}}&emsp;</span>
+                    <span @click="logout()">sign out</span>
+                </div>
+            </div>
+        </div>
+        <section class="section">
+            <div class="box">
+                <p class="title">{{obj.title}}</p>
+                <!-- <p class="time">{{obj.time}}</p> -->
+                <!-- <img class="img" :src="obj.img" alt="" srcset=""> -->
+                <p class="content" v-html="obj.content"></p>
+            </div>
+        </section>
+        <el-backtop target="#root" :visibility-height="0" :bottom="100" :right="100">
+            <div
+              style="{
+                height: 100%;
+                width: 100%;
+                background-color: #f2f5f6;
+                box-shadow: 0 0 6px rgba(0,0,0, .12);
+                text-align: center;
+                line-height: 40px;
+                color: #1989fa;
+              }"
+            >
+              {{percent}}%
+            </div>
+          </el-backtop>
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <script>
+        var app = new Vue({
+            el:"#root",
+            data:{
+                uname:'',
+                list:[],
+                userid:'',
+                id:'',
+                obj:{},
+                percent:1
+            },
+            created:function(){
+                var param=window.location.search.split('?')[1].split('&');
+                var paramObj={};
+                param.forEach(function(e,i){
+                    paramObj[e.split('=')[0]]=e.split('=')[1];
+                })
+                console.log(paramObj);
+                this.userid=paramObj.userid||'';
+                this.id=paramObj.id||'';
+                this.uname=sessionStorage.getItem('uname')||'';
+                this.init();
+            },
+            mounted(){
+                var that=this;
+                var scroH = $(document).scrollTop();  //滚动高度
+                var viewH = $(window).height();  //可见高度
+                var contentH = $(document).height();  //内容高度
+                console.log(scroH,viewH,contentH);
+                if(viewH >= contentH){
+                    that.percent=100;
+                    console.log(that.percent);
+                    that.chang();
+                }else{
+                    that.percent=Math.floor(scroH/(contentH-viewH)*100)<1?1:Math.floor(scroH/(contentH-viewH)*100);
+                    console.log(that.percent);
+                    that.chang();
+                }
+                $(document).scroll(function() {
+                    var scroH = $(document).scrollTop();  //滚动高度
+                    var viewH = $(window).height();  //可见高度
+                    var contentH = $(document).height();  //内容高度
+                    console.log(scroH,viewH,contentH);
+                    if(viewH >= contentH){  
+                        that.percent=100;
+                        console.log(that.percent);
+                        that.chang();
+                    }else{
+                        that.percent=Math.floor(scroH/(contentH-viewH)*100)<1?1:Math.floor(scroH/(contentH-viewH)*100);
+                        console.log(that.percent);
+                        that.chang();
+                    }               
+                });
+            },
+            methods:{
+                home:function(){
+                    window.location.href='./index.html';
+                },
+                back:function(){
+                    window.history.go(-1);
+                },
+                logout:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:'/admin/logout',//地址
+                        dataType:'json',//数据类型
+                        type:'GET',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            window.location.href=data.data;
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    })
+                },
+                init(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向                               alert(redirect);
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    var load=this.$loading({ fullscreen: true });
+                    $.ajax({
+                        url:host+'/api/content',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           userid:that.userid
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            load.close();
+                            console.log(data);
+                            that.list=data.data.list;
+                            data.data.list.forEach(function(e){
+                                if(e.cid==that.id){
+                                    that.obj=e;
+                                }
+                            })
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            load.close();
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    }) 
+                },
+                chang:function(){
+                    var that=this;
+                    $.ajaxSetup({
+                        complete : function(XMLHttpRequest, textStatus) {    
+                            // 通过XMLHttpRequest取得响应头，REDIRECT      
+                            var redirect = XMLHttpRequest.getResponseHeader("REDIRECT");//若HEADER中含有REDIRECT说明后端想重定向    
+                            if (redirect == "REDIRECT") {  
+                                var win = window;      
+                                while (win != win.top){    
+                                    win = win.top;    
+                                }  
+                                win.location.href= XMLHttpRequest.getResponseHeader("CONTEXTPATH");
+                            }  
+                        }
+                    });
+                    $.ajax({
+                        url:host+'/api/studylogs',//地址
+                        dataType:'json',//数据类型
+                        type:'POST',//类型
+                        timeout:2000,//超时
+                        //参数
+                        data:{
+                           uid:that.userid,
+                           articleid:that.id,
+                           percent:that.percent
+                        },
+                        //请求成功
+                        success:function(data,status){
+                            console.log(data);
+                        },
+                        //失败/超时
+                        error:function(XMLHttpRequest,textStatus,errorThrown){
+                            if(textStatus==='timeout'){
+                                that.$message('Request timed out');
+                                setTimeout(function(){
+                                    that.$message('Re request');
+                                },2000);
+                            }
+                            //alert(errorThrown);
+                        }
+                    }) 
+                }
+            }
+        })
+    </script>
+</body>
+</html>

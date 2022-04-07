@@ -1,0 +1,70 @@
+#root .list{
+    width: 100%;
+    margin: 50px auto;
+    display: flex;
+    /* justify-content: space-between; */
+    flex-wrap: wrap;
+}
+#root .list li{
+    width: 15%;
+    cursor: pointer;
+    margin-bottom: 10px;
+    margin-right: 2%;
+}
+#root .list .liBox{
+    /* width: 100%; */
+    box-shadow: 0 0 2px 0 #ccc;
+    font-weight: 700;
+    font-size: 17px;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 10px;
+}
+#root .list li img{
+    /* width: 100%; */
+}
+#root .list li .bottom{
+    margin-top: 10px;
+}
+#root .list li .bottom p{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+}
+#root .list li .time{
+    margin-top: 5px;
+    font-size: 15px;
+    color:#999;
+    font-weight: normal;
+}
+.pagination{
+    margin-bottom: 20px;
+}
+.dimback{
+    background: #000;
+    position: relative;
+}
+.dimback img{
+    opacity:0.6; 
+    filter: alpha(opacity=60);
+}
+.dimback p{
+    width: 80px;
+    height: 20px;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin:auto;
+    text-align: center;
+    line-height: 20px;
+    color:#fff;
+}
+.score p{
+    font-size: 14px;
+    text-align: center;
+    margin-top:8px;
+    color:#999;
+}

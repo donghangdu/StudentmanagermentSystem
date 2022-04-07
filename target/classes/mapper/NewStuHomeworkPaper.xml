@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wip.dao.NewStuHomeworkPaperMapper">
+    <resultMap id="BaseResultMap" type="com.wip.model.NewStuHomeworkPaper">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="workid" jdbcType="INTEGER" property="workid" />
+        <result column="userid" jdbcType="INTEGER" property="userid" />
+        <result column="score" jdbcType="INTEGER" property="score" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="filename" jdbcType="VARCHAR" property="filename" />
+        <result column="time" jdbcType="DATE" property="time" />
+        <result column="examinationtime" jdbcType="DATE" property="examinationtime" />
+        <result column="file" jdbcType="VARCHAR" property="file" />
+    </resultMap>
+
+    <select id="selectNewHomeworkCorrectRecordsAndUserList" parameterType="java.util.Map" resultType="java.util.Map">
+        select tp.id,tp.workid,tp.userid,tp.score,tp.state,
+        tp.filename,date_format(tp.time,'%Y-%m-%d') as time,
+        date_format(tp.examinationtime,'%Y-%m-%d') as examinationtime,
+        a.realname,b.className
+        from newhomework_stu tp
+        left join test_user a on tp.userid = a.userid
+        left join test_class b on b.id = a.classid
+        where tp.workid=#{testPaperId}
+    </select>
+</mapper>

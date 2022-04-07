@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="title='Course work ',active='newHomeworkPaper'">
+<header th:replace="admin/fragments/header::headerFragment(${title},${active})"></header>
+<link rel="stylesheet" th:href="@{/forum/layui/css/layui.css}" />
+<body class="fixed-left">
+<div id="wrapper">
+    <div th:replace="admin/fragments/header::header-body"></div>
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Course work </h4>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form id="cform" class="form-inline" role="form">
+                                    <input type="hidden" id="mid"/>
+                                    <a id="save-testPaper-btn" href="#" class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                        <i class="fa fa-plus"></i> <span>Add</span>
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="15%">Work name</th>
+                                <th width="10%">Created time</th>
+                                <th width="15%">Class name</th>
+                                <th width="5%">Created by</th>
+                                <th width="5%">Usage status</th>
+                                <th width="20%">Operation (submit only when there is a question)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:each="post : ${testPaperList.list}">
+                                <tr th:cid="${post.id}">
+                                    <td>
+                                        <th:block th:text="${post.workname}"/>
+                                    </td>
+                                    <td><th:block th:text="${post.time}"/></td>
+                                    <td><th:block th:text="${post.classname}"/></td>
+                                    <td><th:block th:text="${post.authorname}"/></td>
+                                    <td>
+                                        <th:block th:if="${post.status == 'on'}">
+                                            <span class="label label-success">Submitted in use</span>
+                                        </th:block>
+                                        <th:block th:if="${post.status == '0'}">
+                                            <span class="label label-default">Not used by submit</span>
+                                        </th:block>
+                                    </td>
+                                    <td>
+                                        <th:block th:if="${post.status == '0'}">
+                                            <a href="javascript:void(0)" th:onclick="'updateStatus('+${post.id}+');'"
+                                               class="btn btn-success btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-check-square-o"></i>
+                                                <span>Using submit</span>
+                                            </a>
+                                        </th:block>
+                                        <th:block th:if="${post.status == '0'}">
+                                            <a href="javascript:void(0)" th:onclick="'delPost('+${post.id}+');'" class="btn btn-danger btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-trash-o"></i> <span>delete</span>
+                                            </a>
+                                        </th:block>
+                                        <th:block>
+                                            <a class="btn btn-warning btn-sm waves-effect waves-light m-b-5" th:onclick="'preview('+${post.id}+');'" target="_blank">
+                                                <i class="fa fa-rocket"></i> <span>preview</span>
+                                            </a>
+                                        </th:block>
+                                        <th:block th:if="${post.status =='on'}">
+                                            <a href="javascript:void(0)" th:href="@{'/admin/newhomeworkCorrectRecords/list/'+${post.id}}" class="btn btn-info btn-sm waves-effect waves-light m-b-5">
+                                                <i class="fa fa-eye"></i> <span>View completed job records</span>
+                                            </a>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                            </th:block>
+
+                            </tbody>
+                        </table>
+                        <div th:replace="comm/macros :: pageAdminNav3(${testPaperList},${userid})"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/fragments/footer :: footers"></div>
+<script th:src="@{/forum/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var id = RndNum(8);
+    layui.use('layer', function(){
+        var layer = layui.layer;
+    });
+    /*<![CDATA[*/
+    var tale = new $.tale();
+    function delPost(id) {
+        tale.alertConfirm({
+            title:'Are you sure you want to delete this job?',
+            then: function () {
+                tale.post({
+                    url : '/admin/newhomeworkPaper/deletehomeworkpage',
+                    data: {id: id},
+                    success: function (result) {
+                        if(result && result.code == 'success'){
+                            tale.alertOkAndReload('Job deleted successfully');
+                        } else {
+                            tale.alertError(result.msg || 'Job deletion failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    $('#save-testPaper-btn').click(function () {
+            var index = layer.open({
+                type : 2,
+                title : 'Add a Assignment',
+                content : "/admin/newhomeworkPaper/addhomeworkpage",
+                area : [ '80%', '90%' ],
+                maxmin : true,
+                resize : false,
+                shade:0,
+                success : function(layer_obj, index) {
+                    var data ={
+                        id:id
+                    };
+                    $.ajax({
+                        url:"/admin/newhomeworkPaper/savenewhomework",
+                        type:"post",
+                        data:data,
+                        success:function(res){
+                            var div = layer_obj.find('iframe').contents().find('#iddiv');
+                            div.find("#id").val(id);
+                            renderForm();
+                        },
+                        error:function(e){
+                        }
+                    });
+                },
+                end : function() {
+                    layer.confirm('close success！', {
+                        btn: ['yes'] //可以无限个按钮
+                    }, function(index, layero){
+                        window.location.reload();
+                    });
+                }
+            });
+    });
+    function updateStatus(id) {
+        tale.alertConfirm({
+            title: 'After using submit, you cannot edit the assignment and the test questions under the assignment. Are you sure you want to use submit?',
+            then: function () {
+                tale.post({
+                    url: '/admin/newhomeworkPaper/status',
+                    data: {id: id},
+                    success: function (result) {
+                        if (result && result.code == 'success') {
+                            tale.alertOkAndReload('Submit successfully used');
+                        } else {
+                            tale.alertError(result.msg || 'Submit failed');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    function preview(id) {
+        id = id;
+        var index = layer.open({
+            type : 2,
+            title : 'addhomeworkpage',
+            content : "/admin/newhomeworkPaper/newhomeworkpreviewpage?id="+id,
+            area : [ '80%', '90%' ],
+            maxmin : true,
+            resize : false,
+            shade:0,
+            success : function(layer_obj, index) {
+                layer.msg('Saved successfully！', {icon: 1});
+            },
+            end : function() {
+            }
+        });
+    }
+    function RndNum(n){
+            var rnd="";
+             for(var i=0;i<n;i++)
+                 rnd+=Math.floor(Math.random()*10);
+            return rnd;
+         }
+    function renderForm() {
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>

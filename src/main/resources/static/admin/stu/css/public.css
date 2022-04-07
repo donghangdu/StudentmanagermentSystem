@@ -1,0 +1,50 @@
+/* 所有常用标签样式初始化，所需样式全都要自定义 */
+html,body,a,p,ul,ol,li,h1,h2,h3,h4,h5,h6,div,img,span,select,option,input,button{
+    border: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+#root{
+    position: relative;
+    padding-top: 60px;
+}
+/* 每个页面公用class，定宽居中 */
+.section{
+    width: 90%;
+    min-width:1200px;
+    margin: 0 auto;
+}
+.navBox{
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+.nav{
+    height: 60px;
+    line-height: 60px;
+    /* padding: 0 15px; */
+    /* background: rgba(109, 134, 172, 0.6); */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* margin-bottom: 10px; */
+}
+.nav span{
+    cursor: pointer;
+}
+.nav .titleBox{
+    display: flex;
+}
+.nav .title{
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-right: 20px;
+}
